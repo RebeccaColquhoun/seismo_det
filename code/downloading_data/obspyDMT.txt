@@ -1,0 +1,28 @@
+ obspyDMT --datapath olsen_allen_2005 --data_source "IRIS" --preset 300 --offset 1800 --max_epi 5
+
+for i in events:
+lat1 = np.floor(i.origins[0].latitude)
+lat2 = np.floor(i.origins[0].latitude)+1
+long1 = np.floor(i.origins[0].longitude)
+long2 = np.floor(i.origins[0].longitude)+1
+event_rect = str(min(lat1, lat2))+"/"+str(max(lat1, lat2)) +"/"+str(min(long1, long2))+"/"+str(max(long1, long2))
+min_mag = np.floor(i.magnitudes[0].mag)
+t = i.origins[0].time
+min_year = t.year
+min_month = t.month
+min_day = t.day
+min_date = str(min_year)+"-"str(min_month)+"-"str(min_day)
+t2 = t1+timedelta(days=1)
+max_year = t2.year
+max_month = t2.month
+max_day = t2.day
+max_date = str(max_year)+"-"str(max_month)+"-"str(max_day)
+query = "obspyDMT --datapath olsen_allen_2005 --event_catalog IRIS --data_source IRIS --max_epi 5 --min_mag " + str(min_mag) + " --min_date " + min_date + " --max_date " + max_date + " --event_rect " + event_rect 
+
+http://service.iris.edu/fdsnws/event/1/query?starttime=2002-07-01T00%3A00%3A00.000000&endtime=2002-07-01T00%3A00%3A00.000000&minlat=35&maxlat=34&minlong=-117&maxlong=-116&mindepth=-10.0&maxdepth=6000.0&minmagnitude=3.0&maxmagnitude=10.0&orderby=time-asc
+
+
+http://service.iris.edu/fdsnws/event/1/query?starttime=2002-07-01T00%3A00%3A00.000000&endtime=2002-07-01T00%3A00%3A00.000000&minlatitude=34&maxlatitude=35&minlongitude=-116&maxlongitude=-117&mindepth=-10.0&maxdepth=6000.0&minmagnitude=3.0&maxmagnitude=10.0&orderby=time-asc
+
+obspyDMT --datapath CaDataJan2002 --event_catalog IRIS --data_source IRIS --event_info --min_mag 3.0 --min_date 2002-01-01 --max_date 2002-02-01 --max_epi 1 --event_rect -124.55/-115.59/32.75/40.33 --preset 300 --offset 1800
+

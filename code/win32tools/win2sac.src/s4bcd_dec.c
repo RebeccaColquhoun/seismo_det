@@ -1,0 +1,9 @@
+#include <s4win2sac.h>
+void 
+bcd_dec(int *dest, char *sour)
+{
+    int     cntr;
+    for (cntr = 0; cntr < 6; cntr++) {
+        dest[cntr] = ((sour[cntr] >> 4) & 0xf) * 10 + (sour[cntr] & 0xf);
+    }
+}
