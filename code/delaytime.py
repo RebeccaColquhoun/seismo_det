@@ -30,9 +30,9 @@ for i in range(0, len(data)):  # iterate through all traces
         abs_displ = abs(displ.data) # find absolute of trace
         print(n_records)
         try:
-            sum_abs_displ = sum_abs_displ + abs_displ[pick_samples-10000:pick_samples+10000]
+            sum_abs_displ = sum_abs_displ + abs_displ[pick_samples:pick_samples+10000]
         except:
-            sum_abs_displ = abs_displ[pick_samples-10000:pick_samples+10000]
+            sum_abs_displ = abs_displ[pick_samples:pick_samples+10000]
     '''peaks_x = scipy.signal.find_peaks(abs_displ)[0]
     peaks_y = []
     for peak in peaks_x:
@@ -48,6 +48,7 @@ aad = sum_abs_displ/n_records
 DPD_time = 0.05
 DPD_samples = 2.5
 delay_time = []
+decline = 0
 for point in range(1,len(aad)):
     if aad[point]<aad[point-1]:
         decline += 1
@@ -56,3 +57,9 @@ for point in range(1,len(aad)):
     else:
         decline = 0
 #T_dp = pick + delay_time
+
+plt.plot(np.arange(0, 5, 0.02), aad[:250])
+plt.xscale('log'), plt.yscale('log')
+plt.ylabel('displacement')
+plt.xlabel('time (s)')
+plt.show()
