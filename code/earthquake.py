@@ -138,7 +138,7 @@ class earthquake(object):
         self.stalta = stalta
         if self.picks == []:
             self.picks = picks
-    
+
     def calc_Tc(self, window_length=4, start_window=0):
         from obspy import UTCDateTime
         picks = self.data_stats['picks']
@@ -151,61 +151,61 @@ class earthquake(object):
                 #tc_value.append([])
         for i in range(0, len(data)):
             if data[i].stats.channel[2] == 'Z':
-            #acceleration_data = obspy.read("/Users/rebecca/Documents/PhD/Research/Frequency/Tokachi-Oki/data/"+data_files[i]+"/"+data_files[i]+".UD", apply_calib=True)   
+            #acceleration_data = obspy.read("/Users/rebecca/Documents/PhD/Research/Frequency/Tokachi-Oki/data/"+data_files[i]+"/"+data_files[i]+".UD", apply_calib=True)
                 station = data[i].stats.station
                 station = station.ljust(4)
                 if station in picks.keys():
                     # load saved parameters
                     sampling_rate = data[i].stats.sampling_rate
                     pick = UTCDateTime(picks[station])
-                    
+
                     start = int((pick - data[i].stats.starttime)*sampling_rate)
                     end = int(start + 3 * sampling_rate)
-    
-                    if sensor_types[i]=='acc':
+
+                    if sensor_types[i]=='acc': # convert acceleration to velocity
                         acc = data[i]
                         acc.detrend()
                         #acc = data[i].copy()
-                        vel = acc.copy() 
+                        vel = acc.copy()
                         vel = vel.integrate() # V
-                    else: 
+                    else:
                         vel = data[i]
-                    
+
                     vel_HP = vel.copy() # V_HP
                     vel_HP.filter('highpass', freq=0.1, corners = 3)
                     displ = vel_HP.copy()
                     displ = displ.integrate() # u
                     vel_for_tc = displ.copy()
                     vel_for_tc = vel_for_tc.differentiate() # u_dot
-                    
-                    
+
+
                     numerator = vel_for_tc[start:end+1] ** 2
                     numerator = np.trapz(numerator) # .integrate()
-                    
+
                     denominator = displ[start:end+1] ** 2
                     denominator = np.trapz(denominator) # .integrate()
-                    
+
                     t_c = (2 * math.pi)/(math.sqrt(numerator/denominator))
                     tc_value.append(t_c)
                     print(t_c)
         self._cached_params['tau_c'] = tc_value
-          
+
         # fig, axs = plt.subplots(2, 1)
-        
+
         # tp_ave = []
         # tc_ave = []
-        
+
         # for i in range(0, len(tp_max)):
         #     axs[0].plot(tp_max[i], marker = 'o')
         #     tp_ave.append(np.average(tp_max[i]))
-            
+
         # for i in range(0, len(tc_value)):
         #     axs[1].plot(tc_value[i], marker = 'o')
         #     tc_ave.append(np.average(tc_value[i]))
-            
+
         # axs[0].legend(labels)
         # axs[1].legend(labels)
-        
+
         # fig, axs = plt.subplots(5, 1)
         # axs[0].plot(acc)
         # axs[1].plot(vel)
@@ -217,29 +217,29 @@ class earthquake(object):
         # axs[2].set_ylabel("vel_HP")
         # axs[3].set_ylabel("displ")
         # axs[4].set_ylabel("vel_for_tc")
-        
+
     def calc_delaytime(self):
-        data = self.data
-        sensor_types = self.data_stats['sensor_types']
+        # data = self.data for OOP
+        root = '/home/earthquakes1/homes/Rebecca/phd/data/AK_data_eqtransformer/'
+        eq_list = os.listdir(root)
+        eq_name = eq_list[0]
+        data = obspy.read(root+eq_name+'/data/*/*')
+        # sensor_types = self.data_stats['sensor_types'] for automated OOP
         for i in range(0, len(data)):  # iterate through all traces
             if data[i].stats.channel[2] == 'Z':  # only use vertical components
                 tr = data[i].copy()
-                if sensor_types[i][0] == 'a':
+                n_records += 1
+                '''if sensor_types[i][0] == 'a':
                     tr.filter('highpass', freq=0.1, corners=3)  # 0.078)#i_freq)
                     tr = tr.integrate()
                     displ = tr.integrate()
-                elif sensor_types[i][0] == 'v':
-                    tr.filter('highpass', freq=0.1, corners=3)  # 0.078)#i_freq)
-                    displ = tr.integrate()            
-            abs_displ = abs(displ.data)
-            
-            
-            
-
-                    
-
-
-
-        
-        
-        
+                elif sensor_types[i][0] == 'v':'''
+                tr.filter('highpass', freq=0.1, corners=3)  # 0.078)#i_freq)
+                displ = tr.integrate()
+                abs_displ = abs(displ.data) # find absolute of trace
+                sum_abs_displ = sum_abs_displ + abs_displ
+            '''peaks_x = scipy.signal.find_peaks(abs_displ)[0]
+            peaks_y = []
+            for peak in peaks_x:
+                peaks_y.append(abs_displ[peak])'''
+        aad = sum_abs_displ/n_records
