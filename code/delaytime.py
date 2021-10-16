@@ -90,11 +90,11 @@ for row in range(4):
         # with the one at the previous sample ...regardless of the magntiude of the decline'
         # Noda and Ellsworth 2016
         DPD_time = 0.05
-        DPD_samples = 2 # sampling rate is 50 Hz
+        DPD_samples = 2.5 # sampling rate is 50 Hz
         delay_time = []
         decline = 0 # count how many amplitudes have decreased in a row
         for point in range(1,len(aad)):
-            if aad_bin[point]>aad_bin[point-1]:
+            if aad_bin[point]<aad_bin[point-1]:
                 print('less than previous point')
                 decline += 1
                 if decline == np.ceil(DPD_samples)-1: #if surpassed the DPD
@@ -104,11 +104,11 @@ for row in range(4):
         T_dp = np.array(delay_time)/sampling_rate # convert to seconds
         if len(T_dp)>0:
             for i in range(0, min(5, len(T_dp))): # vertical lines marking potential Tdp locations (first 5 after P wave pick)
-                axs[row_count][col_count].vlines(T_dp[i], min(aad_bin), max(aad_bin))
+                axs[row_count][col_count].vlines(T_dp[i], min(aad_bin[0:250]), max(aad_bin[0:250]))
 
-        axs[row_count][col_count].plot(np.arange(0, 50, 0.02), aad[column][row][:2500], zorder = 50)
+        axs[row_count][col_count].plot(np.arange(0, 5, 0.02), aad[column][row][:250], zorder = 50, color = 'red')
         for ind_ad in ad[column][row]:
-            axs[row_count][col_count].plot(np.arange(0, 50, 0.02), ind_ad[:2500], color='lightgrey')
+            axs[row_count][col_count].plot(np.arange(0, 5, 0.02), ind_ad[:250], color='lightgrey')
         axs[row_count][col_count].set_xscale('log')
         axs[row_count][col_count].set_yscale('log') # in log space
         col_count += 1
