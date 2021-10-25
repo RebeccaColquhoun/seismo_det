@@ -75,11 +75,12 @@ class earthquake(object):
             if data[i].stats.channel[2] == 'Z':  # only use vertical components
                 tr = data[i].copy()
                 station = tr.stats.station
-                station = station.ljust(4)
-                if station in picks.keys():
+                #station = station.ljust(4)
+                tr_name = tr.stats.network+'.'+tr.stats.station+'.'+tr.stats.location
+                if tr_name in picks.keys():
                     # load saved parameters
                     sampling_rate = tr.stats.sampling_rate
-                    pick = UTCDateTime(picks[station])
+                    pick = UTCDateTime(picks[tr_name])
                     #preprocess data
                     tr.detrend()
                     if sensor_types[i][0] == 'a':
@@ -152,24 +153,26 @@ class earthquake(object):
         for i in range(0, len(data)):
             if data[i].stats.channel[2] == 'Z':
             #acceleration_data = obspy.read("/Users/rebecca/Documents/PhD/Research/Frequency/Tokachi-Oki/data/"+data_files[i]+"/"+data_files[i]+".UD", apply_calib=True)
-                station = data[i].stats.station
+                tr = data[i]
+                station = tr.stats.station
                 station = station.ljust(4)
-                if station in picks.keys():
+                tr_name = tr.stats.network+'.'+tr.stats.station+'.'+tr.stats.location
+                if tr_name in picks.keys():
                     # load saved parameters
-                    sampling_rate = data[i].stats.sampling_rate
-                    pick = UTCDateTime(picks[station])
+                    sampling_rate = tr.stats.sampling_rate
+                    pick = UTCDateTime(picks[tr_name])
 
-                    start = int((pick - data[i].stats.starttime)*sampling_rate)
+                    start = int((pick - tr.stats.starttime)*sampling_rate)
                     end = int(start + 3 * sampling_rate)
 
                     if sensor_types[i]=='acc': # convert acceleration to velocity
-                        acc = data[i]
+                        acc = tr
                         acc.detrend()
                         #acc = data[i].copy()
                         vel = acc.copy()
                         vel = vel.integrate() # V
                     else:
-                        vel = data[i]
+                        vel = tr
 
                     vel_HP = vel.copy() # V_HP
                     vel_HP.filter('highpass', freq=0.1, corners = 3)
