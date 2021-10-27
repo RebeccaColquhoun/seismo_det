@@ -44,15 +44,17 @@ class earthquake(object):
         self.data_stats = {}
         self.data_stats['picks'] = picks
         self.stalta = []
-        print(len(data))
-        if sensor_types == []:
-            print('in if')
-            for i in range(0, len(self.data)):
-                sensor_types.append('vel')
+        self.find_sensor_types()
+    def find_sensor_types(self):
+        data = self.data
+        sensor_types = []
+        for i in range(0, len(self.data)):
+            proc = data[i].stats['processing'][0]
+            loc = proc.find('output')
+            st = proc[loc+8:loc+11]
+            sensor_types.append(st)
         self.data_stats['sensor_types'] = sensor_types
-        print(len(sensor_types))
-
-    def calc_Tpmax(self, window_length=4, start_window=0):
+    def calc_Tpmax(self, window_length=4, start_window=0, freq_cut_off = 0.1, filter_corners = 3):
         """
 
         :param window: window over which to calculate max predominant period, defaults to 4
@@ -84,7 +86,7 @@ class earthquake(object):
                     #preprocess data
                     tr.detrend()
                     if sensor_types[i][0] == 'a':
-                        tr.filter('highpass', freq=0.1, corners=3)  # 0.078)#i_freq)
+                        tr.filter('highpass', freq=freq_cut_off, corners=filter_corners)  # 0.078)#i_freq)
                         tr = tr.integrate()
                     tr.filter('lowpass', freq=3)
                     # tr.data[0:int((picks[i] - tr.stats.starttime)*sampling_rate)] = 0
@@ -100,7 +102,7 @@ class earthquake(object):
                         D[t] = alpha*D[t-1]+diff[t]**2
                     tau_p = 2 * np.pi * np.sqrt(X/D)
                     tau_p_list.append(tau_p)
-                    print(max(tau_p[int(start+0.5*sampling_rate):int(end)]))
+                    # print(max(tau_p[int(start+0.5*sampling_rate):int(end)]))
                     tp_max.append(max(tau_p[int(start+0.5*sampling_rate):int(end)]))
         self._cached_params["tau_p"] = tau_p_list
         self._cached_params["tau_p_max"] = tp_max
@@ -190,7 +192,7 @@ class earthquake(object):
 
                     t_c = (2 * math.pi)/(math.sqrt(numerator/denominator))
                     tc_value.append(t_c)
-                    print(t_c)
+                    # print(t_c)
         self._cached_params['tau_c'] = tc_value
 
         # fig, axs = plt.subplots(2, 1)

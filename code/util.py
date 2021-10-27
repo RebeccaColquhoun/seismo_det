@@ -34,6 +34,7 @@ def dateToFileName(date):
     return fileName
 
 def filenameToDate(filename):
+    import datetime
     year = int(filename[0:4])
     month = int(filename[4:6])
     day = int(filename[6:8])

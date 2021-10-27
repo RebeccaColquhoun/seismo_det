@@ -103,7 +103,7 @@ def plot_pls():
     fig, axs = plt.subplots(1,2)
     y_aves = []
     x_aves = []
-    print(list_mags)
+    #print(list_mags)
     for i  in range(0, len(list_mags)):  
         mean_tp = np.mean(list_tpmax[i]) 
         std_tp = np.std(list_tpmax[i]) 
@@ -127,9 +127,12 @@ def plot_pls():
             axs[0].scatter(x_tp, y_tp, s = 15, alpha = 0.2, c = cs[c], marker = '^') 
             #axs[0].scatter(list_mags[i], np.mean(y_tp), s = 50, c = cs[c], marker = 'o')
             axs[0].scatter(list_mags[i], np.median(y_tp), s = 50, c = cs[c], marker = '^')
-            if np.median(y_tp) in range(0, 10000000):
+
+            #print(np.median(y_tp))
+            if math.isnan(np.median(y_tp))==False:
                 y_aves.append(np.median(y_tp))
                 x_aves.append(list_mags[i])
+            #print(y_aves)
             axs[1].scatter(x_tc, y_tc, s = 15, alpha = 0.2, c = cs[c], marker = '^') 
             axs[1].scatter(list_mags[i], np.median(y_tc), s = 50, c = cs[c], marker = '^')
             #axs[1].scatter(list_mags[i], np.mean(y_tc), s = 50, c = cs[c], marker = 'o')
@@ -156,10 +159,9 @@ def plot_pls():
     axs[0].plot(x, y_upper, color = 'red', linestyle = '--')
 
     # plot my own line of best fit
-    import code
-    code.interact(local=locals())
+
     popt, pcov = curve_fit(model_function, x_aves, y_aves)
-    axs[0].plot(x_aves, func(x_aves, *popt), color='blue')
+    axs[0].plot(np.array(x_aves), model_function(np.array(x_aves), *popt), color='blue')
 
     plt.show()
     
