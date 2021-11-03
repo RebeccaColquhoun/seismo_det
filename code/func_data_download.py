@@ -12,10 +12,11 @@ import pickle
 client = Client("IRIS")
 
 def download_data(cat, root):
-    for event in cat:
+    cat_to_do = check_if_done(cat)
+    for event in cat_to_do:
         origin_time = event.origins[0].time
         eq_name = util.catEventToFileName(event)
-
+        
         # Circular domain around the epicenter. This will download all data between
         # 70 and 90 degrees distance from the epicenter. This module also offers
         # rectangular and global domains. More complex domains can be defined by
@@ -55,3 +56,13 @@ def download_data(cat, root):
 
         mdl.download(domain, restrictions, mseed_storage=root+eq_name+"/data/{station}/{network}.{station}.{location}.{channel}__{starttime}__{endtime}.mseed",
                      stationxml_storage=root+eq_name+"/station_xml_files/")
+
+def check_if_done(cat, root = "/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/"):
+    for i in range(0, len(cat)):
+        event = cat[i]
+        fn = util.catEventToFileName(event)
+        if os.path.isdir(root+fn):
+            last_event = i
+    cat_to_do = cat[last_event:]
+    return cat_to_do
+        
