@@ -54,6 +54,8 @@ class earthquake(object):
             st = proc[loc+8:loc+11]
             sensor_types.append(st)
         self.data_stats['sensor_types'] = sensor_types
+        
+        
     def calc_Tpmax(self, window_length=4, start_window=0, freq_cut_off = 0.1, filter_corners = 3):
         """
 
@@ -108,7 +110,7 @@ class earthquake(object):
         self._cached_params["tau_p_max"] = tp_max
 
     @property
-    def pgv(self):
+    def calc_pgv(self):
         data = self.data
         """Absolute peak ground velocity"""
         if "pgv" in self._cached_params:
@@ -177,7 +179,7 @@ class earthquake(object):
                         vel = tr
 
                     vel_HP = vel.copy() # V_HP
-                    vel_HP.filter('highpass', freq=0.1, corners = 3)
+                    vel_HP.filter('highpass', freq=0.075, corners = 3)
                     displ = vel_HP.copy()
                     displ = displ.integrate() # u
                     vel_for_tc = displ.copy()
@@ -195,34 +197,42 @@ class earthquake(object):
                     # print(t_c)
         self._cached_params['tau_c'] = tc_value
 
-        # fig, axs = plt.subplots(2, 1)
+    def calc_IV2(self, window_length=4, start_window=0):
+        from obspy import UTCDateTime
+        picks = self.data_stats['picks']
+        data = self.data
+        sensor_types = self.data_stats['sensor_types']
+        IV2 = []
+        count = 0
+        for i in range(0, len(data)):
+            if data[i].stats.channel[2] == 'Z':
+                tr = data[i]
+                station = tr.stats.station
+                station = station.ljust(4)
+                tr_name = tr.stats.network+'.'+tr.stats.station+'.'+tr.stats.location
+                if tr_name in picks.keys():
+                    # load saved parameters
+                    sampling_rate = tr.stats.sampling_rate
+                    pick = UTCDateTime(picks[tr_name])
 
-        # tp_ave = []
-        # tc_ave = []
+                    start = int((pick - tr.stats.starttime)*sampling_rate)
+                    end = int(start + 3 * sampling_rate)
 
-        # for i in range(0, len(tp_max)):
-        #     axs[0].plot(tp_max[i], marker = 'o')
-        #     tp_ave.append(np.average(tp_max[i]))
+                    if sensor_types[i]=='acc': # convert acceleration to velocity
+                        acc = tr
+                        acc.detrend()
+                        #acc = data[i].copy()
+                        vel = acc.copy()
+                        vel = vel.integrate() # V
+                    else:
+                        vel = tr
 
-        # for i in range(0, len(tc_value)):
-        #     axs[1].plot(tc_value[i], marker = 'o')
-        #     tc_ave.append(np.average(tc_value[i]))
-
-        # axs[0].legend(labels)
-        # axs[1].legend(labels)
-
-        # fig, axs = plt.subplots(5, 1)
-        # axs[0].plot(acc)
-        # axs[1].plot(vel)
-        # axs[2].plot(vel_HP)
-        # axs[3].plot(displ)
-        # axs[4].plot(vel_for_tc)
-        # axs[0].set_ylabel("acc")
-        # axs[1].set_ylabel("vel")
-        # axs[2].set_ylabel("vel_HP")
-        # axs[3].set_ylabel("displ")
-        # axs[4].set_ylabel("vel_for_tc")
-
+                    vel_HP = vel.copy() # V_HP
+                    vel_HP.filter('bandpass', minfreq=0.1, maxfreq = 10, corners = 3)
+                    IV2 = 
+                    IV2.append(t_c)
+                    # print(t_c)
+        self._cached_params['tau_c'] = tc_value        
     def calc_delaytime(self):
         # data = self.data for OOP
         root = '/home/earthquakes1/homes/Rebecca/phd/data/AK_data_eqtransformer/'

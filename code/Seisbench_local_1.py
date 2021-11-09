@@ -72,7 +72,7 @@ for event in cat:
 
 print('===do===')
 count = 0
-for eq_name in eq_with_data[:1]:
+for eq_name in eq_with_data:
     print('earthquake number' + str(count) + 'done. It was' + eq_name)
     stream = obspy.read(root+eq_name+'/data/*/*')
     
@@ -81,7 +81,29 @@ for eq_name in eq_with_data[:1]:
     # save picks in pickled dictionary
     picks_dict = {}
     for pick in picks:
-        if pick.phase=='P':
+        print(pick)
+        print(pick.trace_id)
+        pick_dist = stream[0].stats.starttime - pick.peak_time
+        if pick.phase=='P' and pick.trace_id not in picks_dict.keys() and abs(pick_dist)>200 and abs(pick_dist)<400: # how to deal with more than one earthquake
             picks_dict[pick.trace_id]=pick.peak_time
+            print('first pick')
+        elif pick.phase=='P' and pick.trace_id in picks_dict.keys():
+            print('in elif')
+            current_pick = picks_dict[pick.trace_id]
+            current_dist = stream[0].stats.starttime - current_pick
+            print(current_pick, current_dist)
+            
+            print(pick.peak_time, pick_dist)
+            min_dist = min([current_dist, pick_dist], key=lambda x:abs(abs(x)-300))
+            print(min_dist)
+            if min_dist == pick_dist:
+                print('if true')
+                picks_dict[pick.trace_id]=pick.peak_time
+            else:
+                print('current stands')
+        else:
+            print('must be S')
     count += 1
     save_obj(picks_dict, eq_name)
+    print('SAVED')
+    

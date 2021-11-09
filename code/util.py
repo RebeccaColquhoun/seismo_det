@@ -7,6 +7,8 @@ Created on Wed Apr 14 15:57:52 2021
 """
 import obspy
 from obspy.geodetics import degrees2kilometers
+import numpy as np
+import math
 
 def calc_peak(motion):
     """Calculates the peak absolute response"""
@@ -189,12 +191,12 @@ def find_nearby_data(data, inv, event, max_radius =100000, min_radius = 0): # at
     data_use = obspy.Stream()
     for tr in data:
         sta_name = tr.stats.network+'.'+tr.stats.station+'.'+tr.stats.location+'.'+tr.stats.channel
-        sta_loc = inv.get_location(sta_name)
+        sta_loc = inv.get_coordinates(sta_name)
         sta_lat = sta_loc['latitude']
         sta_lon = sta_loc['longitude']
         sta_depth = -sta_loc['elevation']
-        degrees_dist, azimuth = sphere_dist([ev_lat, ev_lon], [sta_lat, sta_lon])
+        degrees_dist, azimuth = spheredist([ev_lat, ev_lon], [sta_lat, sta_lon])
         dist = degrees2kilometers(degrees_dist) # assumes perfectly spherical earth
         if dist<max_radius and dist>min_radius:
             data_use.append(tr)
-   return data_use
+    return data_use
