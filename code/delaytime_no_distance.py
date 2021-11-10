@@ -20,13 +20,13 @@ counts = pd.DataFrame({'5.0':[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                        '6.0':[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                        '7.0':[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]})
 
-aad = pd.DataFrame({'5.0':[np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window)],
-                   '6.0':[np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window)],
-                   '7.0':[np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window)]})
+aad = pd.DataFrame({'5.0':np.zeros(window),
+                   '6.0':np.zeros(window),
+                   '7.0':np.zeros(window)})
 
-ad = pd.DataFrame({'5.0':[[], [], [], [], [], [], [], [], [], [], [], []],
-                   '6.0':[[], [], [], [], [], [], [], [], [], [], [], []],
-                   '7.0':[[], [], [], [], [], [], [], [], [], [], [], []]})
+ad = pd.DataFrame({'5.0':[[]],
+                   '6.0':[[]],
+                   '7.0':[[]]})
 
 client = Client("IRIS")
 # cat = client.get_events(starttime=UTCDateTime("2019-06-26"), endtime=UTCDateTime("2020-06-26"), minlongitude=-179, maxlongitude=-145, minlatitude=42, maxlatitude=71, minmagnitude=5, includearrivals=True)
@@ -95,47 +95,52 @@ for eq_name in eq_with_data:
         # n_records += 1
 
     '''aad = sum_abs_displ/n_records'''
-fig, axs = plt.subplots(4, df.shape[1]-1)
+fig, axs = plt.subplots(1, df.shape[1]-1)
 print('onto row/column plot')
-row_count = 0
-for row in range(4):
-    print('for row')
-    col_count = 0
-    for column in df.columns[:-1]:
-        print('for column')
-        aad[column][row]=df[column][row]/counts[column][row]
-        aad_bin = aad[column][row]
-        # now to find where departure delay exceeds DPD
-        # 'simple sequential computation ... comparing the amplitude at a sample
-        # with the one at the previous sample ...regardless of the magntiude of the decline'
-        # Noda and Ellsworth 2016
-        DPD_time = 0.05
-        DPD_samples = 2 # sampling rate is 50 Hz
-        delay_time = []
-        decline = 0 # count how many amplitudes have decreased in a row
-        for point in range(1,len(aad_bin)):
-            print('for point in aad')
-            if aad_bin[point]<aad_bin[point-1]:
-                print('less than previous point')
-                decline += 1
-                if decline == np.ceil(DPD_samples)-1: #if surpassed the DPD
-                    delay_time.append(point)
-            else:
-                decline = 0 #reset decline counter
-        T_dp = np.array(delay_time)/sampling_rate # convert to seconds
-        if len(T_dp)>0:
-            for i in range(0, min(5, len(T_dp))): # vertical lines marking potential Tdp locations (first 5 after P wave pick)
-                axs[row_count][col_count].vlines(T_dp[i], min(aad_bin[0:250]), max(aad_bin[0:250]), zorder = 100)
 
-        axs[row_count][col_count].plot(np.arange(0, 5, 0.02), aad[column][row][:250], zorder = 50, color = 'red')
+col_count = 0
+for column in df.columns[:-1]:
+    print('for column')
+    for row in range(len(df[column])):
+        if counts[column][row]>0 and np.isnan(df[column][row][0])==False:
+            print(aad[column])
+            aad[column]=(aad[column]+df[column][row]/counts[column][row])/2
+            print(counts[column][row])
+    aad_bin = aad[column]
+    print(aad_bin)
+    # now to find where departure delay exceeds DPD
+    # 'simple sequential computation ... comparing the amplitude at a sample
+    # with the one at the previous sample ...regardless of the magntiude of the decline'
+    # Noda and Ellsworth 2016
+    DPD_time = 0.05
+    DPD_samples = 5 # sampling rate is 50 Hz
+    delay_time = []
+    decline = 0 # count how many amplitudes have decreased in a row
+    for point in range(1,len(aad_bin)):
+        print('for point in aad')
+        if aad_bin[point]<aad_bin[point-1]:
+            print('less than previous point')
+            decline += 1
+            if decline == np.ceil(DPD_samples)-1: #if surpassed the DPD
+                delay_time.append(point)
+        else:
+            decline = 0 #reset decline counter
+    T_dp = np.array(delay_time)/sampling_rate # convert to seconds
+    if len(T_dp)>0:
+        for i in range(0, min(5, len(T_dp))): # vertical lines marking potential Tdp locations (first 5 after P wave pick)
+            axs[col_count].vlines(T_dp[i], min(aad_bin[0:250]), max(aad_bin[0:250]), zorder = 100)
+
+    axs[col_count].plot(np.arange(0, 5, 0.02), aad_bin[:250], zorder = 50, color = 'red')
+    for row in ad[column]:
         for ind_ad in ad[column][row]:
-            axs[row_count][col_count].plot(np.arange(0, 5, 0.02), ind_ad[:250], color='lightgrey')
-        axs[row_count][col_count].set_xscale('log')
-        axs[row_count][col_count].set_yscale('log') # in log space
-        col_count += 1
-    row_count += 1
+            axs[col_count].plot(np.arange(0, 5, 0.02), ind_ad[:250], color='lightgrey')
+    axs[col_count].set_xscale('log')
+    axs[col_count].set_yscale('log') # in log space
+    col_count += 1
+    
 
 
+    
 axs[0][0].set_title('M5-6')
 axs[0][1].set_title('M6-7')
 axs[0][0].set_ylabel('0-25 km')
@@ -163,6 +168,7 @@ for point in range(1,len(aad)):
     else:
         decline = 0 #reset decline counter
 T_dp = np.array(delay_time)/sampling_rate # convert to seconds
+
 plt.plot(np.arange(0, 5, 0.02), aad[:250]) # plot aad against time for first 5 seconds
 for i in range(0, 5): # vertical lines marking potential Tdp locations (first 5 after P wave pick)
     plt.vlines(T_dp[i], min(aad), max(aad))
@@ -170,6 +176,7 @@ plt.xscale('log'), plt.yscale('log') # in log space
 plt.ylabel('displacement')
 plt.xlabel('time (s)')
 plt.show()
+
 '''
 
 

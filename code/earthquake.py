@@ -229,8 +229,8 @@ class earthquake(object):
 
                     vel_HP = vel.copy() # V_HP
                     vel_HP.filter('bandpass', minfreq=0.1, maxfreq = 10, corners = 3)
-                    IV2 = 
-                    IV2.append(t_c)
+                    #IV2 = 
+                    #IV2.append(t_c)
                     # print(t_c)
         self._cached_params['tau_c'] = tc_value        
     def calc_delaytime(self):
