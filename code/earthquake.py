@@ -45,6 +45,7 @@ class earthquake(object):
         self.data_stats['picks'] = picks
         self.stalta = []
         self.find_sensor_types()
+    
     def find_sensor_types(self):
         data = self.data
         sensor_types = []
@@ -54,7 +55,6 @@ class earthquake(object):
             st = proc[loc+8:loc+11]
             sensor_types.append(st)
         self.data_stats['sensor_types'] = sensor_types
-        
         
     def calc_Tpmax(self, window_length=4, start_window=0, freq_cut_off = 0.1, filter_corners = 3):
         """

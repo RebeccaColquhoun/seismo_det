@@ -13,7 +13,7 @@ import torch
 import util
 import os
 import pickle
-root = '/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m5/'
+root = '/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/'
 print('=== IMPORTS FINISHED ===')
 
 """### Loading pretrained models
@@ -60,7 +60,7 @@ def save_obj(obj, eq_name):  # normally in utils but copy here for now
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
         
 print('===load cat===')        
-cat = obspy.read_events('/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m5_catalog.xml')
+cat = obspy.read_events('/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3_catalog.xml')
 # download_data(cat)
 
 print('===eq with data===')
@@ -81,28 +81,30 @@ for eq_name in eq_with_data:
     # save picks in pickled dictionary
     picks_dict = {}
     for pick in picks:
-        print(pick)
-        print(pick.trace_id)
+        #print(pick)
+        #print(pick.trace_id)
         pick_dist = stream[0].stats.starttime - pick.peak_time
         if pick.phase=='P' and pick.trace_id not in picks_dict.keys() and abs(pick_dist)>200 and abs(pick_dist)<400: # how to deal with more than one earthquake
             picks_dict[pick.trace_id]=pick.peak_time
-            print('first pick')
+            #print('first pick')
         elif pick.phase=='P' and pick.trace_id in picks_dict.keys():
-            print('in elif')
+            #print('in elif')
             current_pick = picks_dict[pick.trace_id]
             current_dist = stream[0].stats.starttime - current_pick
-            print(current_pick, current_dist)
+            #print(current_pick, current_dist)
             
-            print(pick.peak_time, pick_dist)
+            #print(pick.peak_time, pick_dist)
             min_dist = min([current_dist, pick_dist], key=lambda x:abs(abs(x)-300))
-            print(min_dist)
+            #print(min_dist)
             if min_dist == pick_dist:
-                print('if true')
+                #print('if true')
                 picks_dict[pick.trace_id]=pick.peak_time
             else:
-                print('current stands')
+                continue
+                #print('current stands')
         else:
-            print('must be S')
+            continue
+            #print('must be S')
     count += 1
     save_obj(picks_dict, eq_name)
     print('SAVED')

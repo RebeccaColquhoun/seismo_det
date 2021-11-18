@@ -13,7 +13,7 @@ try: #catalog already exists
 except: # catalog doesn't already exist
     print("catalog doesn't exist, make a new one")
     #download new data
-    cat = client.get_events(starttime=UTCDateTime("2019-01-01"), endtime=UTCDateTime("2020-02-01"), includearrivals=True, minmagnitude=3)
+    #cat = client.get_events(starttime=UTCDateTime("2019-01-01"), endtime=UTCDateTime("2020-02-01"), includearrivals=True, minmagnitude=3)
     dates = ["2019-01-01", "2019-02-01", "2019-03-01", "2019-04-01", "2019-05-01", "2019-06-01", "2019-07-01", "2019-08-01", "2019-09-01", "2019-10-01", "2019-11-01", "2019-12-01"]
     cat = client.get_events(starttime=UTCDateTime(dates[0]), endtime=UTCDateTime(dates[1]), includearrivals=True, minmagnitude=3)
     print(len(cat))
