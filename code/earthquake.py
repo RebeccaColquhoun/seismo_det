@@ -90,7 +90,7 @@ class earthquake(object):
                     if sensor_types[i][0] == 'a':
                         tr.filter('highpass', freq=freq_cut_off, corners=filter_corners)  # 0.078)#i_freq)
                         tr = tr.integrate()
-                    tr.filter('lowpass', freq=3)
+                    tr.filter('highpass', freq=0.075)
                     # tr.data[0:int((picks[i] - tr.stats.starttime)*sampling_rate)] = 0
                     alpha = 1-(1/sampling_rate)
                     x = tr.data
