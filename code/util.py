@@ -63,8 +63,8 @@ def catEventToDate(catalogEntry):
 
 def spheredist(loc1,loc2): # FROM JESS
     """
-    :param     loc1: [lon1,lat1] or Nx2 array of locations
-    :param     loc2: [lon2,lat2] or Nx2 array of locations
+    :param     loc1: [lon1,lat1,depth1] or Nx2 array of locations
+    :param     loc2: [lon2,lat2,depth2] or Nx2 array of locations
     :return    dsts: distances in degrees [# of loc1 by # of loc2]
     :return      az: azimuths from location 1 to location 2
     """
@@ -200,3 +200,22 @@ def find_nearby_data(data, inv, event, max_radius =100000, min_radius = 0): # at
         if dist<max_radius and dist>min_radius:
             data_use.append(tr)
     return data_use
+
+def calc_hypo_dist(event, tr, inv): # atm only 2d
+    
+    ev_lat = event.origins[0].latitude
+    ev_lon = event.origins[0].longitude
+    ev_depth = event.origins[0].depth
+    
+    sta_name = tr.stats.network+'.'+tr.stats.station+'.'+tr.stats.location+'.'+tr.stats.channel
+    sta_loc = inv.get_coordinates(sta_name)
+    sta_lat = sta_loc['latitude']
+    sta_lon = sta_loc['longitude']
+    sta_depth = -sta_loc['elevation']
+    
+    degrees_dist, azimuth = spheredist([ev_lat, ev_lon], [sta_lat, sta_lon])
+    epi_dist = degrees2kilometers(degrees_dist) # assumes perfectly spherical earth
+    
+    depth = abs(ev_depth/1000 - sta_depth/1000)
+    hyp_dist = math.sqrt(epi_dist **2 + depth**2)
+    return hyp_dist
