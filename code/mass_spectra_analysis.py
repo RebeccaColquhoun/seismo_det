@@ -72,7 +72,7 @@ binned_spectra = [
 cmap = ['tab:blue','tab:orange','tab:green','tab:red','tab:purple','tab:brown','tab:pink','tab:gray','tab:olive','tab:cyan']
 fig, axs = plt.subplots(1,1)
 failed = []
-for eq_no in range(0, len(eq_with_data[0:3000])):
+for eq_no in range(0, len(eq_with_data[0:100])):
     eq_name = eq_with_data[eq_no]
     try:
         data = obspy.read(root+eq_name+'/data/*/*')
@@ -192,7 +192,7 @@ plt.title('Frequency spectra for 100 earthquakes binned in magnitude and station
 plt.xlabel("log(f)", fontsize = 14)#, labelpad=50)
 plt.ylabel("log(A)", fontsize = 14, labelpad=50)
 fig.tight_layout()
-plt.savefig('/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/spectra/3000_eq')
+plt.savefig('/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/spectra/100_eq_dist_mag')
 
 
 # In[ ]:
@@ -217,7 +217,6 @@ np.round(3.4, 0)
 
 
 # In[ ]:
-
 
 
 
