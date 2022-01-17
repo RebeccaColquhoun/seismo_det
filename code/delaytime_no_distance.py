@@ -12,7 +12,8 @@ import pandas as pd
 root = '/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m5/'
 eq_list = os.listdir(root)
 
-window = 2000 
+window = 2000
+#columns = magnitude
 df = pd.DataFrame({'5.0':[np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window)],
                    '6.0':[np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window)],
                    '7.0':[np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window), np.zeros(window)]})
