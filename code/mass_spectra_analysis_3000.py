@@ -139,7 +139,7 @@ for eq_no in range(0, len(eq_with_data[0:100])):
                         axs.set_xlabel('Frequency (Hz)');
                         axs.set_ylabel('A^2');
                     #plt.title(tr_name + data[tr_no].stats.channel+' coda wave Power spectra');
-                    else:
+                    #else:
                         #axs.plot(Pfreq[:-1],freq[0:N//2]-min(freq[0:N//2]), color = cmap[eq_no], alpha = 0.5)#tr_name + data[tr_no].stats.channel)
 
                     Pfreq_MHZ = Pfreq
@@ -192,7 +192,7 @@ plt.title('Frequency spectra for 100 earthquakes binned in magnitude and station
 plt.xlabel("log(f)", fontsize = 14)#, labelpad=50)
 plt.ylabel("log(A)", fontsize = 14, labelpad=50)
 fig.tight_layout()
-plt.savefig('/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/spectra/3000_eq')
+#plt.savefig('/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/spectra/3000_eq')
 
 
 # In[ ]:
