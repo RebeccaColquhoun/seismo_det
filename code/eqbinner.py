@@ -193,16 +193,45 @@ def add_to_dataframe(polygon, cat_region, eq_region):
     save_dataframe(polygons_df)
 
 
+def print_regions(df):
+    ind = df.index
+    for i in ind:
+        print('    - '+i)
+
+
 def pick_out_region(df, name):
-    polygon = df.loc[name].catalogs
+    polygon = df.loc[name].polygons
     eq_region = df.loc[name].eq_lists
     cat_region = df.loc[name].catalogs
     return polygon, eq_region, cat_region
 
 
-eq_use, cat_use, locations, lats, longs, depths = eq_with_data()
-polygons_df = load_dataframe()
-polygon_x_coords, polygon_y_coords = polygon_selector(earthquakes=[longs, lats, depths], already_found_polygons=polygons_df.polygons)
-polygon = make_polygon(polygon_x_coords, polygon_y_coords)
-cat_region, eq_region = sort_cat(polygon, locations, eq_use, cat_use)
-add_to_dataframe(polygon, cat_region, eq_region)
+def inspect_dataframe():
+    p_df = load_dataframe()
+    print('regions in dataframe are:')
+    print_regions(p_df)
+    r = input().lower()
+    polygon, eq_region, cat_region = pick_out_region(p_df, r)
+    print('returned polygon, list of earthquakes in region and catalog to console')
+    return polygon, eq_region, cat_region
+
+
+def pick_regions():
+    eq_use, cat_use, locations, lats, longs, depths = eq_with_data()
+    polygons_df = load_dataframe()
+    polygon_x_coords, polygon_y_coords = polygon_selector(earthquakes=[longs, lats, depths], already_found_polygons=polygons_df.polygons)
+    polygon = make_polygon(polygon_x_coords, polygon_y_coords)
+    cat_region, eq_region = sort_cat(polygon, locations, eq_use, cat_use)
+    add_to_dataframe(polygon, cat_region, eq_region)
+
+
+pick_region = True
+while pick_region is True:
+    print('do you want to pick some regions?')
+    if input()[0].lower() == 'y':
+        pick_regions()
+    else:
+        pick_region = False
+print('inspect data?')
+if input()[0].lower() == 'y':
+    polygon, eq_region, cat_region = inspect_dataframe()
