@@ -9,6 +9,7 @@ import os
 import util
 import matplotlib.patches as patches
 import pandas as pd
+import cartopy.feature as cf
 
 
 class SelectFromCollection(object):
@@ -99,9 +100,10 @@ def eq_with_data():
 
 
 def polygon_selector(earthquakes=[[], [], []], already_found_polygons=[]):
+
     ax = plt.axes(projection=ccrs.PlateCarree())
     ax.coastlines()
-
+    ax.add_feature(cf.BORDERS)
     for p in already_found_polygons:
         path = Path(p)
         patch = patches.PathPatch(path, facecolor='orange', lw=2, alpha=0.2)
@@ -208,17 +210,20 @@ def pick_out_region(df, name):
 
 def inspect_dataframe():
     p_df = load_dataframe()
-    print('regions in dataframe are:')
+    print('\n \n regions in dataframe are:')
     print_regions(p_df)
-    r = input().lower()
+    r = input('\n\n region to return:    ').lower()
     polygon, eq_region, cat_region = pick_out_region(p_df, r)
-    print('returned polygon, list of earthquakes in region and catalog to console')
+    print('returned polygon (polygon), list of earthquakes in region (eq_region) and catalog (cat_region) to console')
     return polygon, eq_region, cat_region
 
 
 def pick_regions():
+    print('please wait, loading data...')
     eq_use, cat_use, locations, lats, longs, depths = eq_with_data()
+    print('please wait, loading dataframe...')
     polygons_df = load_dataframe()
+    print('please wait, opening interactive map...')
     polygon_x_coords, polygon_y_coords = polygon_selector(earthquakes=[longs, lats, depths], already_found_polygons=polygons_df.polygons)
     polygon = make_polygon(polygon_x_coords, polygon_y_coords)
     cat_region, eq_region = sort_cat(polygon, locations, eq_use, cat_use)
@@ -235,3 +240,6 @@ while pick_region is True:
 print('inspect data?')
 if input()[0].lower() == 'y':
     polygon, eq_region, cat_region = inspect_dataframe()
+else:
+    print('here is the dataframe (polygons_df)')
+    polygons_df = load_dataframe()
