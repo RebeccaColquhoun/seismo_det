@@ -13,7 +13,7 @@ import torch
 import util
 import os
 import pickle
-root = '/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/'
+root = '/home/earthquakes1/homes/Rebecca/phd/data/2018_2021_global_m5/'
 print('=== IMPORTS FINISHED ===')
 
 """### Loading pretrained models
@@ -50,9 +50,9 @@ For more efficient processing, let's first move the model to GPU. Moving a model
 **Note:** This command will fail, if you do not have a properly configured GPU. In this case, just skip it.
 """
 
-print('=== WORK ON GPU ===')
-model.cuda();
-print('=== FINISH WORK ON GPU ===')
+#print('=== WORK ON GPU ===')
+#model.cuda();
+#print('=== FINISH WORK ON GPU ===')
 
 
 def save_obj(obj, eq_name):  # normally in utils but copy here for now
@@ -60,7 +60,7 @@ def save_obj(obj, eq_name):  # normally in utils but copy here for now
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
         
 print('===load cat===')        
-cat = obspy.read_events('/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3_catalog.xml')
+cat = obspy.read_events('/home/earthquakes1/homes/Rebecca/phd/data/2018_2021_global_m5_catalog.xml')
 # download_data(cat)
 
 print('===eq with data===')
@@ -72,7 +72,7 @@ for event in cat:
 
 print('===do===')
 count = 0
-for eq_name in eq_with_data:
+for eq_name in eq_with_data[1:2]:
     print('earthquake number' + str(count) + 'done. It was' + eq_name)
     stream = obspy.read(root+eq_name+'/data/*/*')
     

@@ -1,0 +1,10 @@
+To download data:
+use run_data_download. need to update the root path at the top, and possibly the dates/catalog path.
+Then need to pick data:
+use seisbench_local_1.py
+change catalog paths, root, may need to on/off use of gpu
+Now can run science things:
+e.g. 
+tpmax_and_tc_calc_and_save_ONLY  --> calculates predominant and average period
+delay_time_m5 --> calculates the delay time 
+spectrograms_2 --> plots spectrograms, spectra and tp/tcmax onto plot for every station. can only run after tpmax_and_tc_calc_and_save_ONLY
