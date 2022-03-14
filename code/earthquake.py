@@ -233,7 +233,13 @@ class earthquake(object):
                     #IV2 = 
                     #IV2.append(t_c)
                     # print(t_c)
-        self._cached_params['tau_c'] = tc_value        
+        self._cached_params['tau_c'] = tc_value
+        
+        
+        
+        
+        
+
     def calc_delaytime(self):
         # data = self.data for OOP
         root = '/home/earthquakes1/homes/Rebecca/phd/data/AK_data_eqtransformer/'
