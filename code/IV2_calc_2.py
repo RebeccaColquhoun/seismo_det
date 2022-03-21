@@ -8,6 +8,7 @@ from obspy import UTCDateTime
 from obspy.clients.fdsn import Client
 import util
 import pandas as pd
+from datetime import timedelta
 
 root = '/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/' #2018_2021_global_m5/'#'/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m5/'
 eq_list = os.listdir(root)
@@ -23,7 +24,7 @@ for event in cat:
         eq_with_data.append(eq_name)
         cat_with_data.extend([event])
 
-eq_no = 2658
+eq_no = 0
 
 #check eq_no is multiple of 100
 def truncate(n):
@@ -127,8 +128,8 @@ else:
                            '7.0':[[], [], [], [], [], [], [], []]})
         list_mag = []
         list_dist = []
-        list_iv2 = []  
-  
+        list_iv2 = []
+        
 for eq_name in eq_with_data[eq_no:]:
     print(str(eq_no) + ' out of '+ str(len(eq_with_data)))# find matching cat event:
     eq_no += 1
@@ -136,7 +137,7 @@ for eq_name in eq_with_data[eq_no:]:
         if eq_name == util.catEventToFileName(event):
             cat_entry = event
             break
-
+    print(eq_name)
     eq_lat= cat_entry.origins[0].latitude
     eq_long = cat_entry.origins[0].longitude
     eq_mag = cat_entry.magnitudes[0].mag
@@ -144,7 +145,10 @@ for eq_name in eq_with_data[eq_no:]:
 
     data = obspy.read(root+eq_name+'/data/*/*')
     data.interpolate(100, 'lanczos', a = 20)
-    inv = obspy.read_inventory(root+eq_name+'/station_xml_files/*')
+    try:
+        inv = obspy.read_inventory(root+eq_name+'/station_xml_files/*')
+    except:
+        continue
     #print('data read')
     with open(root+eq_name+'/picks.pkl', 'rb') as f:
         picks = pickle.load(f)
@@ -160,6 +164,7 @@ for eq_name in eq_with_data[eq_no:]:
             count = 0
             for i in range(0, len(data)):
                 if data[i].stats.channel[2] == 'Z':
+                    #fig, axs = plt.subplots(1,2, figsize = (12.8, 9))
                     try:
                         tr = data[i].copy()
                         station = tr.stats.station
@@ -168,19 +173,22 @@ for eq_name in eq_with_data[eq_no:]:
                         sta_long = inv.select(network = tr.stats.network, station = tr.stats.station)[0][0].longitude
                         distance = np.sqrt((eq_lat - sta_lat)**2 + (eq_long - sta_long)**2) * 110
                         tr_name = tr.stats.network+'.'+tr.stats.station+'.'+tr.stats.location
-                        
+
                         if tr_name in picks.keys() and distance < 200:
                             # load saved parameters
-                        
-                            tr.remove_response(inv)
                             pick = picks[tr_name]
                             pick = UTCDateTime(picks[tr_name])
-                            pick_samples = int(round((UTCDateTime(pick) - tr.stats.starttime)*tr.stats.sampling_rate, 0))                            
-
+                            #pick_samples = int(round((UTCDateTime(pick) - tr.stats.starttime)*tr.stats.sampling_rate, 0))                            
+                            tr.trim(pick-timedelta(seconds = 10), pick+timedelta(seconds = 10))
+                            pick_samples = int(10 * tr.stats.sampling_rate)
+                            tr.remove_response(inv)
+                            tr.filter('bandpass', freqmin = 0.075, freqmax = 10)
                             snr = max(abs(tr.data[pick_samples:500+pick_samples]))/max(abs(tr.data[pick_samples-700:pick_samples-200]))
+                            print(snr)
                             sampling_rate = tr.stats.sampling_rate
                             if snr>10:
-                                start = int((pick - tr.stats.starttime)*sampling_rate)
+                                print('in if')
+                                start = pick_samples # int((pick - tr.stats.starttime)*sampling_rate)
                                 end = int(start + 3 * sampling_rate)
                                 vel = tr.copy()
                                 v2 = vel.copy()
@@ -195,14 +203,15 @@ for eq_name in eq_with_data[eq_no:]:
                                 list_dist.append(distance)
                                 counts[eq_mag_str][int(distance//25)] = counts[str(np.floor(eq_mag))][int(distance//25)]  + 1
                     except:
+                        print('in except')
                         continue
     if eq_no%100 == 0:
-        iv2.to_pickle(root+'iv2_dataframe.pkl')
-        with open(root+'list_iv2', "wb") as fp:   #Pickling
+        iv2.to_pickle(root+'iv2_dataframe_0075_10.pkl')
+        with open(root+'list_iv2_0075_10', "wb") as fp:   #Pickling
             pickle.dump(list_iv2, fp)
-        with open(root+'list_mag', "wb") as fp:   #Pickling
+        with open(root+'list_mag_0075_10', "wb") as fp:   #Pickling
             pickle.dump(list_mag, fp)
-        with open(root+'list_dist', "wb") as fp:   #Pickling
+        with open(root+'list_dist_0075_10', "wb") as fp:   #Pickling
             pickle.dump(list_dist, fp)            
 
 
