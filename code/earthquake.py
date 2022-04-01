@@ -1,16 +1,18 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+'''
+earthquake class
+'''
 
 import math
 import os
+import pickle
 import obspy
 import numpy as np
-import pickle
+from obspy import UTCDateTime
 
-class earthquake():
+class Earthquake():
 
     '''
-    Class implementing the phase coherence method
+    Class implementing the
 
     Args required:
         * name      : Instance Name
@@ -24,7 +26,7 @@ class earthquake():
 
     # -------------------------------------------------------------------------------
     # Initialize class #
-    def __init__(self, name, catalog_object): # data, inventory, picks=None, sensor_types=None):
+    def __init__(self, name, catalog_object):  # data, inventory, picks=None, sensor_types=None):
         '''
         Initialize main variables of the class
 
@@ -36,29 +38,61 @@ class earthquake():
         # print('init')
         # Save name
         isinstance(name, str), 'name argument must be a string'
-        self.name = name
+        self.event_stats = dict()
+        self.event_stats['name'] = name
         self.event = catalog_object
         self.data_stats = dict()
         self.load()
-        self._cached_params = {}
+        self.calculated_params = {}
         self.find_sensor_types()
 
     def load(self):
+        """
+
+
+        Returns
+        -------
+        None.
+
+        """
         root = '/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/'
-        data = obspy.read(root+self.name+'/data/*/*')
-        with open(root+self.name+'/picks.pkl', 'rb') as f:
-            self.data_stats['picks'] = pickle.load(f)
-        self.inv = obspy.read_inventory(root+self.name+'/station_xml_files/*')
-        self.data = data.remove_response(self.inv)
+        data = obspy.read(root+self.event_stats['name']+'/data/*/*')
+        with open(root+self.event_stats['name']+'/picks.pkl', 'rb') as file:
+            self.data_stats['picks'] = pickle.load(file)
+        self.inv = obspy.read_inventory(root+self.event_stats['name']+'/station_xml_files/*')
+        data_response_removed = []
+        for trace in data:
+            try:
+                data_response_removed.append(trace.remove_response(self.inv))
+            except Exception:
+                continue
+        self.data = obspy.Stream(traces = data_response_removed)
 
     def eq_info(self):
+        """
+
+
+        Returns
+        -------
+        None.
+
+        """
         cat_entry = self.event
-        self.data_stats['eq_lat'] = cat_entry.origins[0].latitude
-        self.data_stats['eq_long'] = cat_entry.origins[0].longitude
-        self.data_stats['eq_mag'] = cat_entry.magnitudes[0].mag
-        self.data_stats['eq_mag_type'] = cat_entry.magnitudes[0].magnitude_type
+        self.event_stats['eq_lat'] = cat_entry.origins[0].latitude
+        self.event_stats['eq_long'] = cat_entry.origins[0].longitude
+        self.event_stats['eq_depth'] = cat_entry.origins[0].depth
+        self.event_stats['eq_mag'] = cat_entry.magnitudes[0].mag
+        self.event_stats['eq_mag_type'] = cat_entry.magnitudes[0].magnitude_type
 
     def find_sensor_types(self):
+        """
+
+
+        Returns
+        -------
+        None.
+
+        """
         data = self.data
         sensor_types = []
         for i in range(0, len(self.data)):
@@ -77,11 +111,10 @@ class earthquake():
         :type window: int, optional
 
         alters:
-            _cached_params["tau_p"] -- list of calculated predominant period for all traces
-            _cached_params["tau_p_max"] -- list of max predominant periods (1 value for each trace)
+            calculated_params["tau_p"] -- list of calculated predominant period for all traces
+            calculated_params["tau_p_max"] -- list of max predominant periods (1 value for each trace)
 
         """
-        from obspy import UTCDateTime
         data = self.data
         picks = self.data_stats['picks']
         sensor_types = self.data_stats['sensor_types']
@@ -89,53 +122,76 @@ class earthquake():
         tp_max = []
         for i in range(0, len(data)):  # iterate through all traces
             if data[i].stats.channel[2] == 'Z':  # only use vertical components
-                tr = data[i].copy()
-                station = tr.stats.station
+                trace = data[i].copy()
+                station = trace.stats.station
                 # station = station.ljust(4)
-                tr_name = tr.stats.network+'.'+tr.stats.station+'.'+tr.stats.location
+                tr_name = trace.stats.network+'.'+trace.stats.station+'.'+trace.stats.location
                 if tr_name in picks.keys():
                     # load saved parameters
-                    sampling_rate = tr.stats.sampling_rate
+                    sampling_rate = trace.stats.sampling_rate
                     pick = UTCDateTime(picks[tr_name])
                     # preprocess data
-                    tr.detrend()
+                    trace.detrend()
                     if sensor_types[i][0] == 'a':
-                        tr.filter('highpass', freq=freq_cut_off, corners=filter_corners)  # 0.078)#i_freq)
-                        tr = tr.integrate()
+                        trace.filter('highpass', freq=freq_cut_off, corners=filter_corners)  # 0.078)#i_freq)
+                        trace = trace.integrate()
                     # tr.filter('highpass', freq=0.075)
-                    tr.filter('lowpass', freq=3)
+                    trace.filter('lowpass', freq=3)
                     # tr.data[0:int((picks[i] - tr.stats.starttime)*sampling_rate)] = 0
                     alpha = 1-(1/sampling_rate)
-                    x = tr.data
-                    diff = (tr.differentiate()).data
+                    x = trace.data
+                    diff = (trace.differentiate()).data
                     X = np.zeros(len(x))
                     D = np.zeros(len(x))
-                    start = int((pick - tr.stats.starttime)*sampling_rate)
+                    start = int((pick - trace.stats.starttime)*sampling_rate)
                     end = int(start + 4 * sampling_rate)
-                    for t in range(0, len(tr.data)):
+                    for t in range(0, len(trace.data)):
                         X[t] = alpha*X[t-1]+x[t]**2
                         D[t] = alpha*D[t-1]+diff[t]**2
                     tau_p = 2 * np.pi * np.sqrt(X/D)
                     tau_p_list.append(tau_p)
                     # print(max(tau_p[int(start+0.5*sampling_rate):int(end)]))
                     tp_max.append(max(tau_p[int(start+0.5*sampling_rate):int(end)]))
-        self._cached_params["tau_p"] = tau_p_list
-        self._cached_params["tau_p_max"] = tp_max
+        self.calculated_params["tau_p"] = tau_p_list
+        self.calculated_params["tau_p_max"] = tp_max
 
     @property
     def calc_pgv(self):
+        """
+
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
         data = self.data
         """Absolute peak ground velocity"""
-        if "pgv" in self._cached_params:
-            return self._cached_params["pgv"]
+        if "pgv" in self.calculated_params:
+            return self.calculated_params["pgv"]
         # pgv = util_funcs.calc_peak(data[0].data)
         motion = data[0].data
         pgv = max(abs(min(motion)), max(motion))
-        self._cached_params["pgv"] = pgv
+        self.calculated_params["pgv"] = pgv
         return pgv
 
-    def calc_Tc(self, window_length=4, start_window=0):
-        from obspy import UTCDateTime
+    def calc_tc(self, window_length=4, start_window=0):
+        """
+
+
+        Parameters
+        ----------
+        window_length : TYPE, optional
+            DESCRIPTION. The default is 4.
+        start_window : TYPE, optional
+            DESCRIPTION. The default is 0.
+
+        Returns
+        -------
+        None.
+
+        """
         picks = self.data_stats['picks']
         data = self.data
         sensor_types = self.data_stats['sensor_types']
@@ -184,28 +240,81 @@ class earthquake():
                     t_c = (2 * math.pi)/(math.sqrt(numerator/denominator))
                     tc_value.append(t_c)
                     # print(t_c)
-        self._cached_params['tau_c'] = tc_value
+        self.calculated_params['tau_c'] = tc_value
 
-    def calc_iv2(self, window_length=4, start_window=0, subtract_bkg=True, filter=[0.075, 10]):
+    def calc_iv2(self, window_length=4, subtract_bkg=True, filter_limits=[0.075, 10]):
+        """
+
+
+        Parameters
+        ----------
+        window_length : TYPE, optional
+            DESCRIPTION. The default is 4.
+        subtract_bkg : TYPE, optional
+            DESCRIPTION. The default is True.
+        filter_limits : TYPE, optional
+            DESCRIPTION. The default is [0.075, 10].
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
 
         def calc_distance(tr):
+            """
+
+
+            Parameters
+            ----------
+            tr : TYPE
+                DESCRIPTION.
+
+            Returns
+            -------
+            distance : TYPE
+                DESCRIPTION.
+
+            """
             inv = self.inv
             station = tr.stats.station
             station = station.ljust(4)
             sta_lat = inv.select(network=tr.stats.network, station=tr.stats.station)[0][0].latitude
             sta_long = inv.select(network=tr.stats.network, station=tr.stats.station)[0][0].longitude
             distance = np.sqrt(
-                (self.data_stats['eq_lat'] - sta_lat)**2 +
-                (self.data_stats['eq_long'] - sta_long)**2
+                (self.event_stats['eq_lat'] - sta_lat)**2 +
+                (self.event_stats['eq_long'] - sta_long)**2
                 ) * 110
             return distance
 
-        def actual_IV2_calculation(tr, start, end, bkg):
+        def actual_iv2_calculation(tr, pick, window, bkg):
+            """
 
+
+            Parameters
+            ----------
+            tr : TYPE
+                DESCRIPTION.
+            pick : TYPE
+                DESCRIPTION.
+            window : TYPE
+                DESCRIPTION.
+            bkg : TYPE
+                DESCRIPTION.
+
+            Returns
+            -------
+            iv2 : TYPE
+                DESCRIPTION.
+
+            """
+            start = int((pick - tr.stats.starttime)*sampling_rate)
+            end = int(start + window * sampling_rate)
             vel = tr.copy()
             v2 = vel.copy()
             if bkg is True:
-                bkg = vel.data[start-500:start-200]
+                bkg = vel.data[start-(200+window*100):start-200]
                 bkg = bkg**2
                 bkg_ave = np.mean(bkg)
             else:
@@ -214,7 +323,7 @@ class earthquake():
             iv2_this = v2.integrate()
             iv2 = iv2_this.data[-1]
             print(iv2)
-            if 1e-15 < iv2 < 10 and iv2 != 0:
+            if 1e-15 < abs(iv2) < 10 and iv2 != 0:
                 return iv2
             return None
 
@@ -222,39 +331,36 @@ class earthquake():
         data_interp = self.data.copy()
         data_interp.interpolate(100, 'lanczos', a=20)
         picks = self.data_stats['picks']
-        n_records = 0
         sampling_rate = 100
 
         for i in range(0, len(data_interp)):  # iterate through all traces
             tr_name = data_interp[i].stats.network+'.'+data_interp[i].stats.station+'.'+data_interp[i].stats.location
             if data_interp[i].stats.channel[2] == 'Z' and tr_name in picks.keys():  # only use vertical components at stations with a pick
-                from obspy import UTCDateTime
-                count = 0
-                tr = data_interp[i].copy()
-                distance = calc_distance(tr)
-                tr_name = tr.stats.network+'.'+tr.stats.station+'.'+tr.stats.location
+                trace = data_interp[i].copy()
+                distance = calc_distance(trace)
+                tr_name = trace.stats.network+'.'+trace.stats.station+'.'+trace.stats.location
                 try:
-                    print('intry')
-                    #tr.remove_response(self.inv)
-                    pick = picks[tr_name]
                     pick = UTCDateTime(picks[tr_name])
-                    pick_samples = int(round((UTCDateTime(pick) - tr.stats.starttime)*tr.stats.sampling_rate, 0))
-                    print('2')
-                    snr = max(abs(tr.data[pick_samples:500+pick_samples]))/max(abs(tr.data[pick_samples-700:pick_samples-200]))
-                    sampling_rate = tr.stats.sampling_rate
+                    pick_samples = int(round((UTCDateTime(pick) - trace.stats.starttime)*trace.stats.sampling_rate, 0))
+                    snr = max(abs(trace.data[pick_samples:500+pick_samples]))/max(abs(trace.data[pick_samples-700:pick_samples-200]))
+                    sampling_rate = trace.stats.sampling_rate
                     if snr > 2 and distance < 200:
-                        print('in if')
-                        start = int((pick - tr.stats.starttime)*sampling_rate)
-                        end = int(start + 3 * sampling_rate)
-                        print('start, end')
-                        iv2 = actual_IV2_calculation(tr, start, end, subtract_bkg)
-                        print('calced')
+                        iv2 = actual_iv2_calculation(trace, pick, window_length, subtract_bkg)
                         list_iv2.append([iv2, distance])
                 except Exception:
-                    print('except')
-        self._cached_params['iv2'] = list_iv2
+                    continue
+        self.calculated_params['iv2'] = list_iv2
 
     def calc_delaytime(self):
+        """
+
+
+        Returns
+        -------
+        aad : TYPE
+            DESCRIPTION.
+
+        """
         data = self.data  # for OOP
         root = '/home/earthquakes1/homes/Rebecca/phd/data/AK_data_eqtransformer/'
         eq_list = os.listdir(root)
