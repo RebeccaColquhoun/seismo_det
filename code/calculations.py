@@ -2,6 +2,7 @@ import earthquake
 import os
 import obspy
 import util
+import pickle
 
 root = '/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/'
 eq_list = os.listdir(root)
@@ -16,9 +17,19 @@ for event in cat:  # check earthquakes have data AND PICKS
         eq_with_data.append(eq_name)
         cat_with_data.extend([event])
 
-print('make object')
-for i in range(0, len(eq_with_data)):
-    eq = earthquake.Earthquake(eq_with_data[0], cat_with_data[0])
+print("everything loaded, let's begin")
+WINDOW_LEN = 4
+for i in range(3384, len(eq_with_data)):
+    print(i)
+    print('make object')
+    eq = earthquake.Earthquake(eq_with_data[i], cat_with_data[i])
     eq.eq_info()
-    eq.calc_iv2()
-    print(eq._cached_params['iv2'])
+    eq.calc_iv2(window_length=WINDOW_LEN)
+    eq.calc_tc(window_length=WINDOW_LEN)
+    eq.calc_tpmax(window_length=WINDOW_LEN)
+    print('save object')
+    if eq.data is not False:
+        with open('/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/'+eq_with_data[i]+'/eq_object.pkl', 'wb') as picklefile:
+            pickle.dump(eq, picklefile)
+    else:
+        print('data problem')
