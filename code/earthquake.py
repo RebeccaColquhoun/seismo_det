@@ -143,7 +143,7 @@ class Earthquake():
                         X = np.zeros(len(x))
                         D = np.zeros(len(x))
                         start = int((pick - trace.stats.starttime)*sampling_rate)
-                        end = int(start + 4 * sampling_rate)
+                        end = int(start + window_length * sampling_rate)
                         for t in range(0, len(trace.data)):
                             X[t] = alpha*X[t-1]+x[t]**2
                             D[t] = alpha*D[t-1]+diff[t]**2
@@ -214,7 +214,7 @@ class Earthquake():
                         pick = UTCDateTime(picks[tr_name])
 
                         start = int((pick - trace.stats.starttime)*sampling_rate)
-                        end = int(start + 3 * sampling_rate)
+                        end = int(start + window_length * sampling_rate)
 
                         if sensor_types[i] == 'acc':  # convert acceleration to velocity
                             acc = trace
