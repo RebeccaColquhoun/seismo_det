@@ -18,8 +18,8 @@ for event in cat:  # check earthquakes have data AND PICKS
         cat_with_data.extend([event])
 
 print("everything loaded, let's begin")
-WINDOW_LEN = 1
-for i in range(0, len(eq_with_data)):
+WINDOW_LEN = 4
+for i in range(0, 1000):# len(eq_with_data)):
     print(i)
     print('make object')
     eq = earthquake.Earthquake(eq_with_data[i], cat_with_data[i])
@@ -29,11 +29,11 @@ for i in range(0, len(eq_with_data)):
     eq.calc_tpmax(window_length=WINDOW_LEN)
     print('save object')
     if eq.data is not False:
-        with open('/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/'+eq_with_data[i]+'/eq_object_1s.pkl', 'wb') as picklefile:
+        with open('/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/'+eq_with_data[i]+'/eq_object_4s_bandpass.pkl', 'wb') as picklefile:
             pickle.dump(eq, picklefile)
     else:
         print('data problem')
-
+'''
         
 root = '/home/earthquakes1/homes/Rebecca/phd/data/2018_2021_global_m5/'
 eq_list = os.listdir(root)
@@ -50,7 +50,7 @@ for event in cat:  # check earthquakes have data AND PICKS
 
 print("everything loaded, let's begin")
 WINDOW_LEN = 1
-for i in range(0, len(eq_with_data)):
+for i in range(0, 1000):#len(eq_with_data)):
     print(i)
     print('make object')
     eq = earthquake.Earthquake(eq_with_data[i], cat_with_data[i])
@@ -60,7 +60,8 @@ for i in range(0, len(eq_with_data)):
     eq.calc_tpmax(window_length=WINDOW_LEN)
     print('save object')
     if eq.data is not False:
-        with open('/home/earthquakes1/homes/Rebecca/phd/data/2018_2021_global_m5/'+eq_with_data[i]+'/eq_object_1s.pkl', 'wb') as picklefile:
+        with open('/home/earthquakes1/homes/Rebecca/phd/data/2018_2021_global_m5/'+eq_with_data[i]+'/eq_object_1s_bandpass.pkl', 'wb') as picklefile:
             pickle.dump(eq, picklefile)
     else:
         print('data problem')
+'''

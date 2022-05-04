@@ -58,10 +58,13 @@ class Earthquake():
             data_response_removed = []
             for trace in data:
                 try:
-                    data_response_removed.append(trace.remove_response(self.inv))
+                    if trace.stats.sampling_rate > 20:
+                        data_response_removed.append(trace.remove_response(self.inv))
+                        self.data = obspy.Stream(traces = data_response_removed)
+                    else:
+                        self.data = False
                 except Exception:
                     self.data = False #continue
-            self.data = obspy.Stream(traces = data_response_removed)
         except Exception:
             self.data = False
 
@@ -134,8 +137,8 @@ class Earthquake():
                         if sensor_types[i][0] == 'a':
                             trace.filter('highpass', freq=filter_limits[0], corners=filter_corners)  # 0.078)#i_freq)
                             trace = trace.integrate()
-                        # tr.filter('highpass', freq=0.075)
-                        trace.filter('lowpass', freq=filter_limits[1])
+                        trace.filter('highpass', freq=0.1)
+                        trace.filter('lowpass', freq=10)
                         # tr.data[0:int((picks[i] - tr.stats.starttime)*sampling_rate)] = 0
                         alpha = 1-(1/sampling_rate)
                         x = trace.data
