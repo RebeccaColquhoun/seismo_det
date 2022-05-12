@@ -13,7 +13,7 @@ import torch
 import util
 import os
 import pickle
-root = '/home/earthquakes1/homes/Rebecca/phd/data/2018_2021_global_m5/'
+root = '/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/'
 print('=== IMPORTS FINISHED ===')
 
 """### Loading pretrained models
@@ -60,7 +60,7 @@ def save_obj(obj, eq_name):  # normally in utils but copy here for now
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
         
 print('===load cat===')        
-cat = obspy.read_events('/home/earthquakes1/homes/Rebecca/phd/data/2018_2021_global_m5_catalog.xml')
+cat = obspy.read_events('/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3_catalog.xml')
 # download_data(cat)
 
 print('===eq with data===')
@@ -69,43 +69,53 @@ for event in cat:
     eq_name = util.catEventToFileName(event)
     if os.path.isdir(root+eq_name) and os.path.isdir(root+eq_name+'/station_xml_files'):
         eq_with_data.append(eq_name)
-
+print(eq_with_data)
 print('===do===')
 count = 0
-for eq_name in eq_with_data[1:2]:
-    print('earthquake number' + str(count) + 'done. It was' + eq_name)
-    stream = obspy.read(root+eq_name+'/data/*/*')
-    
-    picks, detections = model.classify(stream)
-    
-    # save picks in pickled dictionary
-    picks_dict = {}
-    for pick in picks:
-        #print(pick)
-        #print(pick.trace_id)
-        pick_dist = stream[0].stats.starttime - pick.peak_time
-        if pick.phase=='P' and pick.trace_id not in picks_dict.keys() and abs(pick_dist)>200 and abs(pick_dist)<400: # how to deal with more than one earthquake
-            picks_dict[pick.trace_id]=pick.peak_time
-            #print('first pick')
-        elif pick.phase=='P' and pick.trace_id in picks_dict.keys():
-            #print('in elif')
-            current_pick = picks_dict[pick.trace_id]
-            current_dist = stream[0].stats.starttime - current_pick
-            #print(current_pick, current_dist)
-            
-            #print(pick.peak_time, pick_dist)
-            min_dist = min([current_dist, pick_dist], key=lambda x:abs(abs(x)-300))
-            #print(min_dist)
-            if min_dist == pick_dist:
-                #print('if true')
-                picks_dict[pick.trace_id]=pick.peak_time
-            else:
-                continue
-                #print('current stands')
+for eq_name in eq_with_data:
+    try: 
+        print(eq_name)
+        if os.path.exists(root+'/'+eq_name+'/picks.pkl') == False:
+            print('earthquake number' + str(count) + 'done. It was' + eq_name)
+            stream = obspy.read(root+eq_name+'/data/*/*')
+
+            picks, detections = model.classify(stream)
+
+            # save picks in pickled dictionary
+            picks_dict = {}
+            for pick in picks:
+                #print(pick)
+                #print(pick.trace_id)
+                pick_dist = stream[0].stats.starttime - pick.peak_time
+                if pick.phase=='P' and pick.trace_id not in picks_dict.keys() and abs(pick_dist)>200 and abs(pick_dist)<400: # how to deal with more than one earthquake
+                    picks_dict[pick.trace_id]=pick.peak_time
+                    #print('first pick')
+                elif pick.phase=='P' and pick.trace_id in picks_dict.keys():
+                    #print('in elif')
+                    current_pick = picks_dict[pick.trace_id]
+                    current_dist = stream[0].stats.starttime - current_pick
+                    #print(current_pick, current_dist)
+
+                    #print(pick.peak_time, pick_dist)
+                    min_dist = min([current_dist, pick_dist], key=lambda x:abs(abs(x)-300))
+                    #print(min_dist)
+                    if min_dist == pick_dist:
+                        #print('if true')
+                        picks_dict[pick.trace_id]=pick.peak_time
+                    else:
+                        continue
+                        #print('current stands')
+                else:
+                    continue
+                    #print('must be S')
+            count += 1
+            save_obj(picks_dict, eq_name)
+            print('SAVED')
         else:
-            continue
-            #print('must be S')
-    count += 1
-    save_obj(picks_dict, eq_name)
-    print('SAVED')
-    
+            print('already done')
+            print(eq_name)
+    except Exception:
+        print('in except')
+        continue
+        
+

@@ -21,7 +21,7 @@ class Earthquake():
 
     # -------------------------------------------------------------------------------
     # Initialize class #
-    def __init__(self, name, catalog_object):  # data, inventory, picks=None, sensor_types=None):
+    def __init__(self, name, catalog_object, root = '/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/'):  # data, inventory, picks=None, sensor_types=None):
 
         '''
         Initialize main variables of the class
@@ -37,11 +37,11 @@ class Earthquake():
         self.event_stats['name'] = name
         self.event = catalog_object
         self.data_stats = dict()
-        self.load()
+        self.load(root)
         self.calculated_params = {}
         self.find_sensor_types()
 
-    def load(self):
+    def load(self, root):
         """
 
         loads data and removes response
@@ -49,7 +49,7 @@ class Earthquake():
         Alters self.data, self.inv
 
         """
-        root = '/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/'
+        
         try:
             data = obspy.read(root+self.event_stats['name']+'/data/*/*')
             with open(root+self.event_stats['name']+'/picks.pkl', 'rb') as file:
@@ -132,28 +132,31 @@ class Earthquake():
                         # load saved parameters
                         sampling_rate = trace.stats.sampling_rate
                         pick = UTCDateTime(picks[tr_name])
-                        # preprocess data
-                        trace.detrend()
-                        if sensor_types[i][0] == 'a':
-                            trace.filter('highpass', freq=filter_limits[0], corners=filter_corners)  # 0.078)#i_freq)
-                            trace = trace.integrate()
-                        trace.filter('highpass', freq=0.1)
-                        trace.filter('lowpass', freq=10)
-                        # tr.data[0:int((picks[i] - tr.stats.starttime)*sampling_rate)] = 0
-                        alpha = 1-(1/sampling_rate)
-                        x = trace.data
-                        diff = (trace.differentiate()).data
-                        X = np.zeros(len(x))
-                        D = np.zeros(len(x))
-                        start = int((pick - trace.stats.starttime)*sampling_rate)
-                        end = int(start + window_length * sampling_rate)
-                        for t in range(0, len(trace.data)):
-                            X[t] = alpha*X[t-1]+x[t]**2
-                            D[t] = alpha*D[t-1]+diff[t]**2
-                        tau_p = 2 * np.pi * np.sqrt(X/D)
-                        tau_p_list.append(tau_p)
-                        # print(max(tau_p[int(start+0.5*sampling_rate):int(end)]))
-                        tp_max.append(max(tau_p[int(start+0.5*sampling_rate):int(end)]))
+                        pick_samples = int(round((UTCDateTime(pick) - trace.stats.starttime)*trace.stats.sampling_rate, 0))
+                        snr = max(abs(trace.data[pick_samples:500+pick_samples]))/max(abs(trace.data[pick_samples-700:pick_samples-200]))
+                        if snr > 20:
+                            # preprocess data
+                            trace.detrend()
+                            if sensor_types[i][0] == 'a':
+                                trace.filter('highpass', freq=filter_limits[0], corners=filter_corners)  # 0.078)#i_freq)
+                                trace = trace.integrate()
+                            trace.filter('highpass', freq=filter_limits[0])
+                            trace.filter('lowpass', freq=filter_limits[1])
+                            # tr.data[0:int((picks[i] - tr.stats.starttime)*sampling_rate)] = 0
+                            alpha = 1-(1/sampling_rate)
+                            x = trace.data
+                            diff = (trace.differentiate()).data
+                            X = np.zeros(len(x))
+                            D = np.zeros(len(x))
+                            start = int((pick - trace.stats.starttime)*sampling_rate)
+                            end = int(start + window_length * sampling_rate)
+                            for t in range(0, len(trace.data)):
+                                X[t] = alpha*X[t-1]+x[t]**2
+                                D[t] = alpha*D[t-1]+diff[t]**2
+                            tau_p = 2 * np.pi * np.sqrt(X/D)
+                            tau_p_list.append(tau_p)
+                            # print(max(tau_p[int(start+0.5*sampling_rate):int(end)]))
+                            tp_max.append(max(tau_p[int(start+0.5*sampling_rate):int(end)]))
             self.calculated_params["tau_p"] = tau_p_list
             self.calculated_params["tau_p_max"] = tp_max
 
