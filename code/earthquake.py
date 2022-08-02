@@ -95,7 +95,7 @@ class Earthquake():
                 sensor_types.append(stream)
             self.data_stats['sensor_types'] = sensor_types
 
-    def calc_tpmax(self, window_length=4, start_window=0, filter_limits=[0.1,3], filter_corners=3):
+    def calc_tpmax(self, window_length=4, start_window=0, filter_limits=[0.1,3], filter_corners=3, blank_time = 0.5):
         """
 
 
@@ -156,7 +156,7 @@ class Earthquake():
                             tau_p = 2 * np.pi * np.sqrt(X/D)
                             tau_p_list.append(tau_p)
                             # print(max(tau_p[int(start+0.5*sampling_rate):int(end)]))
-                            tp_max.append(max(tau_p[int(start+0.5*sampling_rate):int(end)]))
+                            tp_max.append(max(tau_p[int(start+blank_time*sampling_rate):int(end)]))
             self.calculated_params["tau_p"] = tau_p_list
             self.calculated_params["tau_p_max"] = tp_max
 
