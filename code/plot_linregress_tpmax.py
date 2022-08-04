@@ -87,8 +87,8 @@ def plot_for_params(list_mags, list_tpmax, title):
             y_aves_tp = []
             x_aves_tp = []
             for i  in range(0, len(list_mags)):
-                #if list_mags[i] > mag_lim and list_mags[i]<=max(list_mags):
-                if list_mags[i] >= 4 and list_mags[i]<=5:
+                if list_mags[i] > mag_lim and list_mags[i]<=max(list_mags):
+                    #if list_mags[i] >= 4 and list_mags[i]<=5:
                     if len(list_tpmax[i])>=n:
                         mean_tp = np.mean(list_tpmax[i]) 
                         std_tp = np.std(list_tpmax[i]) 
@@ -117,35 +117,44 @@ def plot_for_params(list_mags, list_tpmax, title):
         y = y_use
         x_unique = np.arange(-1.6,2.1,0.1)
         df = pd.DataFrame(columns = x_unique)
-        for runs in range(0,1000):
-            x_bs, y_bs = gen_bs_data(x,y)
-            popt = np.polyfit(x_bs, y_bs, 1)
-            df2 = pd.DataFrame([popt[0]*x_unique+popt[1]],columns = x_unique)
-            df = pd.concat([df,df2], ignore_index=True)
-        ub_95, lb_95 = [], []
-        ub_68, lb_68 = [], []
         
-        for column in df.columns:
-            sorted_array = np.array(df[column])
-            sorted_array.sort()
-            ub_95.append(sorted_array[975])
-            lb_95.append(sorted_array[25])
-            ub_68.append(sorted_array[840])
-            lb_68.append(sorted_array[160])
+        result = scipy.stats.linregress(x,y)
+        a = result.slope
+        b = result.intercept
+        std_a = result.stderr
+        std_b = result.intercept_stderr
+        
+        y_1 = (a+std_a)*x_unique + (b+std_b)
+        y_2 = (a+std_a)*x_unique + (b-std_b)
+        y_3 = (a-std_a)*x_unique + (b+std_b)
+        y_4 = (a-std_a)*x_unique + (b-std_b)
+        
+       
+        y_min_1sd = np.minimum(np.minimum(y_1, y_2), np.minimum(y_3, y_4))
+        y_max_1sd = np.maximum(np.maximum(y_1, y_2), np.maximum(y_3, y_4))
+        
+        y_1 = (a+2*std_a)*x_unique + (b+2*std_b)
+        y_2 = (a+2*std_a)*x_unique + (b-2*std_b)
+        y_3 = (a-2*std_a)*x_unique + (b+2*std_b)
+        y_4 = (a-2*std_a)*x_unique + (b-2*std_b)
+        
+        y_min_2sd = np.minimum(np.minimum(y_1, y_2), np.minimum(y_3, y_4))
+        y_max_2sd = np.maximum(np.maximum(y_1, y_2), np.maximum(y_3, y_4))        
             
         #plt.scatter(x+np.random.uniform(-0.05, 0.05, len(x)),y, marker = 'x', color = 'k', s = 10, alpha = 0.5)
-        axs.fill_between(x_unique, lb_68, ub_68, color = '#bc5090', alpha = 0.6, zorder = 100, label = '1sd')
-        axs.fill_between(x_unique, lb_95, ub_95, color = '#ffa600', alpha = 0.6, zorder = 99, label = '2sd')
+        axs.fill_between(x_unique, y_min_1sd, y_max_1sd, color = '#bc5090', alpha = 0.6, zorder = 100, label = '1sd')
+        axs.fill_between(x_unique, y_min_2sd, y_max_2sd, color = '#ffa600', alpha = 0.6, zorder = 99, label = '2sd')
         popt = np.polyfit(x, y, 1)
-        axs.plot(x_unique, popt[0]*x_unique+popt[1], color='#003f5c',zorder=102,label='{a:.2f}x+{b:.2f}'.format(a=popt[0],b=popt[1]))
+        axs.plot(x_unique, popt[0]*x_unique+popt[1], color='#003f5c',zorder=102,label='{a:.2f}x+{b:.2f}\npearson r: {r:.4f}'.format(a=result.slope,b=result.intercept,r=result.rvalue))
         axs.set_ylabel('log10(tpmax)')
         axs.set_xlabel('magnitude')   
         axs.set_xticks([-2,-1,0,1,2,3], [3,4,5,6,7,8], zorder = 110)
         axs.legend()
         #axs.set_ylim([-2,1])
         axs.set_title(title)
-        plt.show()
-        #plt.savefig('/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/tp_different_params/'+title+'_all_bootstrapped_1000', format = 'pdf')
+        #plt.show()
+        plt.savefig('/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/tp_different_params/linregress/'+title+'_all.pdf', format = 'pdf')
+        print('plot saved')
         return np.array(x_aves_tp)-5, y_aves_tp
 
 
@@ -178,7 +187,8 @@ def load_and_plot(p):
 
     return x, y
 
-
-with Pool(5) as pool:
-    pool.map(load_and_plot, parameters)
+for p in parameters:
+    load_and_plot(p)
+#with Pool(5) as pool:
+#    pool.map(load_and_plot, parameters)
 
