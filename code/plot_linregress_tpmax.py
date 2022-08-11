@@ -1,15 +1,4 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# ## Imports
-
-# In[2]:
-
-
 print('')
-
-
-# In[1]:
 
 
 import os
@@ -156,9 +145,6 @@ def plot_for_params(list_mags, list_tpmax, title):
         plt.savefig('/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/tp_different_params/linregress/'+title+'_all.pdf', format = 'pdf')
         print('plot saved')
         return np.array(x_aves_tp)-5, y_aves_tp
-
-
-
 
 def load_and_plot(p):
     fn = p[-1]
