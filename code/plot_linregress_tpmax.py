@@ -6,6 +6,7 @@ import math
 import obspy
 import pickle
 import datetime
+import scipy
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -29,18 +30,22 @@ list_eq = []
 eqs = {}
 count = 0
 
-parameters = [[1,0.1,19,0,'eq_object_1s_bandpass_01_19_snr_20_blank_0'],
-[1,0.1,19,0.05,'eq_object_1s_bandpass_01_19_snr_20_blank_005'],
-[1,0.1,19,0.1,'eq_object_1s_bandpass_01_19_snr_20_blank_01'],
-[1,0.1,19,0.25,'eq_object_1s_bandpass_01_19_snr_20_blank_025'],
-[1,0.1,19,0.5,'eq_object_1s_bandpass_01_19_snr_20_blank_05'],
-[4,0.1,19,0,'eq_object_4s_bandpass_01_19_snr_20_blank_0'],
-[4,0.1,19,0.05,'eq_object_4s_bandpass_01_19_snr_20_blank_005'],
-[4,0.1,19,0.1,'eq_object_4s_bandpass_01_19_snr_20_blank_01'],
-[4,0.1,19,0.25,'eq_object_4s_bandpass_01_19_snr_20_blank_025'],
-[4,0.1,19,0.5,'eq_object_4s_bandpass_01_19_snr_20_blank_05'],
-[2,0.1,19,0.5,'eq_object_2s_bandpass_01_19_snr_20'],
-[3,0.1,19,0.5,'eq_object_3s_bandpass_01_19_snr_20']]
+#parameters = [[1,0.1,19,0,'eq_object_1s_bandpass_01_19_snr_20_blank_0'],
+#[1,0.1,19,0.05,'eq_object_1s_bandpass_01_19_snr_20_blank_005'],
+#[1,0.1,19,0.1,'eq_object_1s_bandpass_01_19_snr_20_blank_01'],
+#[1,0.1,19,0.25,'eq_object_1s_bandpass_01_19_snr_20_blank_025'],
+#[1,0.1,19,0.5,'eq_object_1s_bandpass_01_19_snr_20_blank_05'],
+#[4,0.1,19,0,'eq_object_4s_bandpass_01_19_snr_20_blank_0'],
+#[4,0.1,19,0.05,'eq_object_4s_bandpass_01_19_snr_20_blank_005'],
+#[4,0.1,19,0.1,'eq_object_4s_bandpass_01_19_snr_20_blank_01'],
+#[4,0.1,19,0.25,'eq_object_4s_bandpass_01_19_snr_20_blank_025'],
+#[4,0.1,19,0.5,'eq_object_4s_bandpass_01_19_snr_20_blank_05'],
+#[2,0.1,19,0.5,'eq_object_2s_bandpass_01_19_snr_20'],
+#[3,0.1,19,0.5,'eq_object_3s_bandpass_01_19_snr_20']]
+parameters = [[0.5,0.1,19,0,'eq_object_05s_bandpass_01_19_snr_20_blank_0'],
+[0.5,0.1,19,0.05,'eq_object_05s_bandpass_01_19_snr_20_blank_005'],
+[0.5,0.1,19,0.1,'eq_object_05s_bandpass_01_19_snr_20_blank_01'],
+[0.5,0.1,19,0.25,'eq_object_05s_bandpass_01_19_snr_20_blank_025']]
 
 def gen_bs_data(x,y):
     x_bs = []
@@ -157,9 +162,12 @@ def load_and_plot(p):
         if os.path.exists('/home/earthquakes1/homes/Rebecca/phd/data/2018_2021_global_m5/'+folders[eq_no]+'/'+fn+'.pkl'):
             with open('/home/earthquakes1/homes/Rebecca/phd/data/2018_2021_global_m5/'+folders[eq_no]+'/'+fn+'.pkl', 'rb') as picklefile:
                 eq = pickle.load(picklefile)
-            list_tpmax.append(eq.calculated_params['tau_p_max'])
-            list_mags.append(eq.event_stats['eq_mag'])
-            list_mag_types.append(eq.event_stats['eq_mag_type'])
+            try:
+                list_tpmax.append(eq.calculated_params['tau_p_max'])
+                list_mags.append(eq.event_stats['eq_mag'])
+                list_mag_types.append(eq.event_stats['eq_mag_type'])
+            except:
+                continue
     folders = os.listdir('/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/')
     for eq_no in range(0, len(folders)):
         if os.path.exists('/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/'+folders[eq_no]+'/'+fn+'.pkl'):

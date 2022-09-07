@@ -27,7 +27,7 @@ def do_calculation_preexisting(eq_with_data, root):
         print(params)
         WINDOW_LEN, min_filter, max_filter, blank_window, fn = params
         for eq_no in range(0, len(eq_with_data)):
-            print(parameters[-1], eq_no)
+            print(params, eq_no)
             print('make object')
             if os.path.exists(root+eq_with_data[eq_no]+'/'+fn+'.pkl'):
                 with open(root+eq_with_data[eq_no]+'/'+fn+'.pkl', 'rb') as picklefile:
@@ -35,6 +35,7 @@ def do_calculation_preexisting(eq_with_data, root):
                 eq.load(root=root)
                 eq.calc_iv2(window_length=WINDOW_LEN)
                 eq.calc_tc(window_length=WINDOW_LEN)
+                print(eq.calculated_params['tau_c'])
                 #eq.calc_tpmax(window_length=WINDOW_LEN, filter_limits=[min_filter,max_filter], blank_time = blank_window)
                 del(eq.data)
                 print('save object')
