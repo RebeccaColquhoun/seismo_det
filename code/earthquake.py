@@ -49,7 +49,7 @@ class Earthquake():
         Alters self.data, self.inv
 
         """
-        
+
         try:
             data = obspy.read(root+self.event_stats['name']+'/data/*/*')
             with open(root+self.event_stats['name']+'/picks.pkl', 'rb') as file:
@@ -359,6 +359,44 @@ class Earthquake():
                     except Exception:
                         continue
             self.calculated_params['iv2'] = list_iv2
+
+
+    def calc_pgd(self, window_length = 1):
+        #sensitive to epicentral distance
+        if self.data is not False:
+            data = self.data
+            """Absolute peak ground displacement"""
+            pgv = max(abs(min(motion)), max(motion))
+            self.calculated_params["pgv"] = pgv
+            for i in range(0, len(data)):  # iterate through all traces
+                if data[i].stats.channel[2] == 'Z':  # only use vertical components
+                    trace = data[i].copy()
+                    station = trace.stats.station
+                    tr_name = trace.stats.network+'.'+trace.stats.station+'.'+trace.stats.location
+                    if tr_name in picks.keys():
+                        # load saved parameters
+                        pick = UTCDateTime(picks[tr_name])
+                        pick_samples = int(round((UTCDateTime(pick) - trace.stats.starttime)*trace.stats.sampling_rate, 0))
+                        snr = max(abs(trace.data[pick_samples:500+pick_samples]))/max(abs(trace.data[pick_samples-700:pick_samples-200]))
+                        if snr > 20:
+                            trace.detrend()
+                            if sensor_types[i][0] == 'a':
+                                trace.filter('highpass', freq=filter_limits[0], corners=filter_corners)  # 0.078)#i_freq)
+                                vel = trace.integrate()
+                                displ = vel.integrate()
+                            elif sensor_types[i][0] == 'v':
+                                trace.filter('highpass', freq=filter_limits[0], corners=filter_corners)  # 0.078)#i_freq)
+                                displ= trace.integrate()
+                            pgd_timeseries = pgd_calculation(displ)
+                            pgd_value = max(pdg_timeseries[pick_samples:pick_samples+window_length])
+                            self.calculated_params['pgd'] = pgd_value
+
+
+    def pgd_calculation(timeseries):
+        pgd = [abs(timeseries[0])]
+        for i in range(1, len(timeseries)):
+            pgd.append(max(pgd[-1], abs(timeseries[i])))
+        return pgd
 
     def calc_delaytime(self):
         """
