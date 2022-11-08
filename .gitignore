@@ -3,3 +3,4 @@
 code/.DS_Store
 figures/.DS_Store
 *.pkl
+/code/node_modules
