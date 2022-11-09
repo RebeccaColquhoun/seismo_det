@@ -39,6 +39,7 @@ class Earthquake():
         self.data_stats = dict()
         self.load(root)
         self.calculated_params = {}
+        self.calculation_info = dict()
         self.find_sensor_types()
 
     def load(self, root):
@@ -122,6 +123,7 @@ class Earthquake():
             sensor_types = self.data_stats['sensor_types']
             tau_p_list = []
             tp_max = []
+            tp_stations = []
             for i in range(0, len(data)):  # iterate through all traces
                 if data[i].stats.channel[2] == 'Z':  # only use vertical components
                     trace = data[i].copy()
@@ -157,7 +159,9 @@ class Earthquake():
                             tau_p_list.append(tau_p)
                             # print(max(tau_p[int(start+0.5*sampling_rate):int(end)]))
                             tp_max.append(max(tau_p[int(start+blank_time*sampling_rate):int(end)]))
+                            tp_stations.append(tr_name)
             self.calculated_params["tau_p"] = tau_p_list
+            self.calculation_info["tau_p_stations"] = tp_stations
             self.calculated_params["tau_p_max"] = tp_max
 
     @property
@@ -203,6 +207,7 @@ class Earthquake():
             data = self.data
             sensor_types = self.data_stats['sensor_types']
             tc_value = []
+            tc_stations = []
             count = 0
             # for i_freq in [0.1, 0.075]:  # np.arange(0.001, 0.2, 0.001):
             #    for corners in [1,2,3,4,5]:
@@ -246,8 +251,10 @@ class Earthquake():
 
                         t_c = (2 * math.pi)/(math.sqrt(numerator/denominator))
                         tc_value.append(t_c)
+                        tc_stations.append(tr_name)
                         # print(t_c)
             self.calculated_params['tau_c'] = tc_value
+            self.calculated_params['tau_c_stations'] = tc_stations
 
     def calc_iv2(self, window_length=4, subtract_bkg=True, filter_limits=[0.075, 10]):
         """
@@ -337,6 +344,8 @@ class Earthquake():
         if self.data is not False:
             print('calculating')
             list_iv2 = []
+            list_iv2_distance = []
+            list_iv2_stations = []
             data_interp = self.data.copy()
             data_interp.interpolate(100, 'lanczos', a=20)
             picks = self.data_stats['picks']
@@ -355,10 +364,14 @@ class Earthquake():
                         sampling_rate = trace.stats.sampling_rate
                         if snr > 2 and distance < 200:
                             iv2 = actual_iv2_calculation(trace, pick, window_length, subtract_bkg)
-                            list_iv2.append([iv2, distance])
+                            list_iv2.append(iv2)
+                            list_iv2_distance.append(dist)
+                            list_iv2_stations.append(tr_name)
                     except Exception:
                         continue
             self.calculated_params['iv2'] = list_iv2
+            self.calculated_params['iv2_dist'] = list_iv2_distance
+            self.calculation_info['iv2_stations'] = list_iv2_stations
 
 
     def calc_pgd(self, window_length = 1):
