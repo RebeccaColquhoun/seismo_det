@@ -308,13 +308,13 @@ class Earthquake():
 
             Parameters
             ----------
-            tr : TYPE
-                DESCRIPTION.
+            tr : obspy trace
+                trace object.
 
             Returns
             -------
-            distance : TYPE
-                DESCRIPTION.
+            distance : float
+                distance from station to earthquake in km.
 
             """
             inv = self.inv
@@ -322,10 +322,7 @@ class Earthquake():
             station = station.ljust(4)
             sta_lat = inv.select(network=tr.stats.network, station=tr.stats.station)[0][0].latitude
             sta_long = inv.select(network=tr.stats.network, station=tr.stats.station)[0][0].longitude
-            distance = np.sqrt(
-                (self.event_stats['eq_lat'] - sta_lat)**2 +
-                (self.event_stats['eq_long'] - sta_long)**2
-                ) * 110
+            distance = geopy.distance.distance((self.event_stats['eq_lat'],self.event_stats['eq_long']),(sta_lat,sta_long))
             return distance
 
         def actual_iv2_calculation(tr, pick, window, bkg):
