@@ -6,11 +6,12 @@ from func_data_download import download_data
 
 client = Client("IRIS")
 
-wanted = '2019_global_m3'
+
 root = "/home/earthquakes1/homes/Rebecca/phd/data/"
 min_mag = 5
 min_year = 2005
 max_year = 2018
+wanted = '{0}_{1}_global_m{2}'.format(str(min_year),str(max_year),str(min_mag))
 
 try: #catalog already exists
     cat = obspy.read_events('/home/earthquakes1/homes/Rebecca/phd/data/'+wanted+'catalog.xml')
@@ -28,7 +29,7 @@ except: # catalog doesn't already exist
         print(len(new_cat))
         for event in new_cat:
             cat.append(event)
-	cat.write('/home/earthquakes1/homes/Rebecca/phd/data/'+wanted+'_catalog.xml', format="QUAKEML") 
+    cat.write('/home/earthquakes1/homes/Rebecca/phd/data/'+wanted+'_catalog.xml', format="QUAKEML") 
 
 print('onto downloading data')
-download_data(cat, root+wanted)
+download_data(cat, root+wanted+'/')
