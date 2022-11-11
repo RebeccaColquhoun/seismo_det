@@ -255,7 +255,33 @@ class Earthquake():
                         # print(t_c)
             self.calculated_params['tau_c'] = tc_value
             self.calculated_params['tau_c_stations'] = tc_stations
+    
+    def calc_distance(tr):
+        """
 
+
+        Parameters
+        ----------
+        tr : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        distance : TYPE
+            DESCRIPTION.
+
+        """
+        inv = self.inv
+        station = tr.stats.station
+        station = station.ljust(4)
+        sta_lat = inv.select(network=tr.stats.network, station=tr.stats.station)[0][0].latitude
+        sta_long = inv.select(network=tr.stats.network, station=tr.stats.station)[0][0].longitude
+        distance = np.sqrt(
+            (self.event_stats['eq_lat'] - sta_lat)**2 +
+            (self.event_stats['eq_long'] - sta_long)**2
+            ) * 110
+        return distance
+        
     def calc_iv2(self, window_length=4, subtract_bkg=True, filter_limits=[0.075, 10]):
         """
 
@@ -282,13 +308,13 @@ class Earthquake():
 
             Parameters
             ----------
-            tr : TYPE
-                DESCRIPTION.
+            tr : obspy trace
+                trace object.
 
             Returns
             -------
-            distance : TYPE
-                DESCRIPTION.
+            distance : float
+                distance from station to earthquake in km.
 
             """
             inv = self.inv
@@ -296,10 +322,7 @@ class Earthquake():
             station = station.ljust(4)
             sta_lat = inv.select(network=tr.stats.network, station=tr.stats.station)[0][0].latitude
             sta_long = inv.select(network=tr.stats.network, station=tr.stats.station)[0][0].longitude
-            distance = np.sqrt(
-                (self.event_stats['eq_lat'] - sta_lat)**2 +
-                (self.event_stats['eq_long'] - sta_long)**2
-                ) * 110
+            distance = geopy.distance.distance((self.event_stats['eq_lat'],self.event_stats['eq_long']),(sta_lat,sta_long))
             return distance
 
         def actual_iv2_calculation(tr, pick, window, bkg):
@@ -364,6 +387,7 @@ class Earthquake():
                         sampling_rate = trace.stats.sampling_rate
                         if snr > 2 and distance < 200:
                             iv2 = actual_iv2_calculation(trace, pick, window_length, subtract_bkg)
+                            dist = calc_distance(trace)
                             list_iv2.append(iv2)
                             list_iv2_distance.append(dist)
                             list_iv2_stations.append(tr_name)
@@ -375,12 +399,11 @@ class Earthquake():
 
 
     def calc_pgd(self, window_length = 1):
-        #sensitive to epicentral distance
         if self.data is not False:
             data = self.data
             """Absolute peak ground displacement"""
-            pgv = max(abs(min(motion)), max(motion))
-            self.calculated_params["pgv"] = pgv
+            pgd_value = []
+            pgd_stations = []
             for i in range(0, len(data)):  # iterate through all traces
                 if data[i].stats.channel[2] == 'Z':  # only use vertical components
                     trace = data[i].copy()
@@ -394,15 +417,19 @@ class Earthquake():
                         if snr > 20:
                             trace.detrend()
                             if sensor_types[i][0] == 'a':
-                                trace.filter('highpass', freq=filter_limits[0], corners=filter_corners)  # 0.078)#i_freq)
+                                trace.filter('highpass', freq=0.075, corners=4)  # 0.078)#i_freq)
                                 vel = trace.integrate()
                                 displ = vel.integrate()
                             elif sensor_types[i][0] == 'v':
-                                trace.filter('highpass', freq=filter_limits[0], corners=filter_corners)  # 0.078)#i_freq)
+                                trace.filter('highpass', freq=0.075, corners=4)  # 0.078)#i_freq)
                                 displ= trace.integrate()
                             pgd_timeseries = pgd_calculation(displ)
-                            pgd_value = max(pdg_timeseries[pick_samples:pick_samples+window_length])
-                            self.calculated_params['pgd'] = pgd_value
+                            pgd_value.append(max(pdg_timeseries[pick_samples:pick_samples+window_length]))
+                            pgd_distances.append()
+                            pgd_stations.append(tr_name)
+            self.calculated_params['pgd'] = pgd_value
+            self.calculated_params['pgd_distances'] = pgd_distances
+            self.calculation_info['pgd_stations'] = pgd_stations
 
 
     def pgd_calculation(timeseries):
