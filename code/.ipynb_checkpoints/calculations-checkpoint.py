@@ -32,30 +32,26 @@ def find_with_data(wanted):
             cat_with_data.extend([event])
     return eq_with_data, cat_with_data
 
-def do_calculation_new(eq_with_data, cat_with_data, wanted):
-    print("let's begin")
+def do_calculation_new(eq_with_data, cat_with_data, wanted, params):
     folder = root_path+wanted+'/'
-    #for params in parameters:
-        #print(params)
-    WINDOW_LEN, min_filter, max_filter, blank_window, fn = [1,0.1,19,0,'eq_object_1s_bandpass_01_19_snr_20_blank_0']#params
-    for eq_no in range(0, 1):#len(eq_with_data)):
-        print(fn, eq_no)
-        print('make object')
-        eq = earthquake.Earthquake(eq_with_data[eq_no], cat_with_data[eq_no], root = folder)
-        eq.eq_info()
-        eq.load(root=folder)
-        eq.calc_iv2(window_length=WINDOW_LEN)
-        eq.calc_tc(window_length=WINDOW_LEN)
-        eq.calc_tpmax(window_length=WINDOW_LEN, filter_limits=[min_filter,max_filter], blank_time = blank_window)
-        if eq.data is not False:
-            del(eq.data)
-            print('save object')
-            with open(folder+eq_with_data[eq_no]+'/test/'+ fn +'.pkl', 'wb') as picklefile:
-                pickle.dump(eq, picklefile)
-        else:
-            print('data problem:', wanted, str(eq_no))
+    for eq_no in range(0, len(eq_with_data)):
+        print(params[-1], eq_no)
+        single_eq_calculation(eq_with_data[eq_no],cat_with_data[eq_no])
 
-
+def single_eq_calculation(eq_with_data_item, event, folder, params):
+    WINDOW_LEN, min_filter, max_filter, blank_window, fn = params
+    eq = earthquake.Earthquake(eq_with_data_item, event, root = folder)
+    eq.eq_info()
+    eq.load(root=folder)
+    eq.calc_iv2(window_length=WINDOW_LEN)
+    eq.calc_tc(window_length=WINDOW_LEN)
+    eq.calc_tpmax(window_length=WINDOW_LEN, filter_limits=[min_filter,max_filter], blank_time = blank_window)
+    if eq.data is not False:
+        del(eq.data)
+        with open(folder+eq_with_data_item+'/test/'+ fn +'.pkl', 'wb') as picklefile:
+            pickle.dump(eq, picklefile)
+    else:
+        print('data problem:', wanted, str(eq_no))
 
 wanted = '2018_2021_global_m5'
 eq_with_data, cat_with_data = find_with_data(wanted)
