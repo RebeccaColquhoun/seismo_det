@@ -36,7 +36,7 @@ def do_calculation_new(eq_with_data, cat_with_data, wanted, params):
     folder = root_path+wanted+'/'
     for eq_no in range(0, len(eq_with_data)):
         print(params[-1], eq_no)
-        single_eq_calculation(eq_with_data[eq_no],cat_with_data[eq_no])
+        single_eq_calculation(eq_with_data[eq_no],cat_with_data[eq_no], folder, params)
 
 def single_eq_calculation(eq_with_data_item, event, folder, params):
     WINDOW_LEN, min_filter, max_filter, blank_window, fn = params
@@ -53,11 +53,8 @@ def single_eq_calculation(eq_with_data_item, event, folder, params):
     else:
         print('data problem:', wanted, str(eq_no))
 
-wanted = '2018_2021_global_m5'
-eq_with_data, cat_with_data = find_with_data(wanted)
-print(len(eq_with_data), len(cat_with_data))
-do_calculation_new(eq_with_data, cat_with_data, wanted)
-
-
-
-
+wanted_list = ['2018_2021_global_m5', '2019_global_m3', '2005_2018_global_m5']
+for wanted in wanted_list:
+    eq_with_data, cat_with_data = find_with_data(wanted)
+    print(len(eq_with_data), len(cat_with_data))
+    do_calculation_new(eq_with_data, cat_with_data, wanted, parameters[0])
