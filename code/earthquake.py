@@ -255,7 +255,7 @@ class Earthquake():
                         # print(t_c)
             self.calculated_params['tau_c'] = tc_value
             self.calculated_params['tau_c_stations'] = tc_stations
-    
+
     def calc_distance(tr):
         """
 
@@ -281,7 +281,7 @@ class Earthquake():
             (self.event_stats['eq_long'] - sta_long)**2
             ) * 110
         return distance
-        
+
     def calc_iv2(self, window_length=4, subtract_bkg=True, filter_limits=[0.075, 10]):
         """
 
@@ -365,7 +365,6 @@ class Earthquake():
             return None
 
         if self.data is not False:
-            print('calculating')
             list_iv2 = []
             list_iv2_distance = []
             list_iv2_stations = []
