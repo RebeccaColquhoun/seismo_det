@@ -51,7 +51,7 @@ def do_calculation_new(num_proc=0):
 
 
 def build_list():
-    wanted_list = ['2005_2018_global_m5']
+    wanted_list = ['2018_2021_global_m5', '2019_global_m3']
     list_for_multi = []
     for wanted in wanted_list:
         eq_with_data, cat_with_data = find_with_data(wanted)

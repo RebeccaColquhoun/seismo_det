@@ -60,7 +60,7 @@ class Earthquake():
             data_response_removed = []
             for trace in data:
                 try:
-                    if trace.stats.sampling_rate > 20:
+                    if trace.stats.sampling_rate >= 40:
                         data_response_removed.append(trace.remove_response(self.inv))
                         self.data = obspy.Stream(traces = data_response_removed)
                     else:
