@@ -5,9 +5,9 @@ import torch
 import util
 import os
 import pickle
-root = '/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/'
+root = '/home/earthquakes1/homes/Rebecca/phd/data/2005_2018_global_m5/'
 
-model = sbm.EQTransformer.from_pretrained("original", version="3")
+model = sbm.EQTransformer.from_pretrained("original", update=True)
 #model = sbm.GPD.from_pretrained("original")
 print(model.weights_docstring)
 
@@ -20,7 +20,7 @@ def save_obj(obj, eq_name):
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
 print('===load cat===')
-cat = obspy.read_events('/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3_catalog.xml')
+cat = obspy.read_events(root[:-1]+'_catalog.xml')
 
 print('===eq with data===')
 eq_with_data = []

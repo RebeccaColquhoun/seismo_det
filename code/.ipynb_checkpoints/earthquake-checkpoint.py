@@ -7,6 +7,7 @@ import os
 import pickle
 import obspy
 import numpy as np
+import geopy.distance
 from obspy import UTCDateTime
 
 class Earthquake():
@@ -59,7 +60,7 @@ class Earthquake():
             data_response_removed = []
             for trace in data:
                 try:
-                    if trace.stats.sampling_rate > 20:
+                    if trace.stats.sampling_rate >= 40:
                         data_response_removed.append(trace.remove_response(self.inv))
                         self.data = obspy.Stream(traces = data_response_removed)
                     else:
@@ -255,7 +256,7 @@ class Earthquake():
                         # print(t_c)
             self.calculated_params['tau_c'] = tc_value
             self.calculated_params['tau_c_stations'] = tc_stations
-    
+
     def calc_distance(tr):
         """
 
@@ -281,7 +282,7 @@ class Earthquake():
             (self.event_stats['eq_long'] - sta_long)**2
             ) * 110
         return distance
-        
+
     def calc_iv2(self, window_length=4, subtract_bkg=True, filter_limits=[0.075, 10]):
         """
 
@@ -365,7 +366,6 @@ class Earthquake():
             return None
 
         if self.data is not False:
-            print('calculating')
             list_iv2 = []
             list_iv2_distance = []
             list_iv2_stations = []
@@ -399,11 +399,42 @@ class Earthquake():
 
 
     def calc_pgd(self, window_length = 1):
+        def calc_distance(tr):
+            """
+
+
+            Parameters
+            ----------
+            tr : obspy trace
+                trace object.
+
+            Returns
+            -------
+            distance : float
+                distance from station to earthquake in km.
+
+            """
+            inv = self.inv
+            station = tr.stats.station
+            station = station.ljust(4)
+            sta_lat = inv.select(network=tr.stats.network, station=tr.stats.station)[0][0].latitude
+            sta_long = inv.select(network=tr.stats.network, station=tr.stats.station)[0][0].longitude
+            distance = geopy.distance.distance((self.event_stats['eq_lat'],self.event_stats['eq_long']),(sta_lat,sta_long))
+            return distance
+
+        def pgd_calculation(timeseries):
+            pgd = [abs(timeseries[0])]
+            for i in range(1, len(timeseries)):
+                pgd.append(max(pgd[-1], abs(timeseries[i])))
+            return pgd
         if self.data is not False:
             data = self.data
+            sensor_types = self.data_stats['sensor_types']
+            picks = self.data_stats['picks']
             """Absolute peak ground displacement"""
             pgd_value = []
             pgd_stations = []
+            pgd_distances = []
             for i in range(0, len(data)):  # iterate through all traces
                 if data[i].stats.channel[2] == 'Z':  # only use vertical components
                     trace = data[i].copy()
@@ -412,31 +443,34 @@ class Earthquake():
                     if tr_name in picks.keys():
                         # load saved parameters
                         pick = UTCDateTime(picks[tr_name])
-                        pick_samples = int(round((UTCDateTime(pick) - trace.stats.starttime)*trace.stats.sampling_rate, 0))
+                        sampling_rate = trace.stats.sampling_rate
+                        pick_samples = int(round((UTCDateTime(pick) - trace.stats.starttime)*sampling_rate, 0))
                         snr = max(abs(trace.data[pick_samples:500+pick_samples]))/max(abs(trace.data[pick_samples-700:pick_samples-200]))
                         if snr > 20:
                             trace.detrend()
-                            if sensor_types[i][0] == 'a':
+                            print(sensor_types[i][0])
+                            if sensor_types[i][0].lower() == 'a':
                                 trace.filter('highpass', freq=0.075, corners=4)  # 0.078)#i_freq)
                                 vel = trace.integrate()
                                 displ = vel.integrate()
-                            elif sensor_types[i][0] == 'v':
+                                print('in if')
+                            elif sensor_types[i][0].lower() == 'v':
                                 trace.filter('highpass', freq=0.075, corners=4)  # 0.078)#i_freq)
                                 displ= trace.integrate()
+                                print('in elif')
+                            else:
+                                print('in else')
                             pgd_timeseries = pgd_calculation(displ)
-                            pgd_value.append(max(pdg_timeseries[pick_samples:pick_samples+window_length]))
-                            pgd_distances.append()
+                            print(pick_samples, pick_samples+window_length)
+                            pgd_value.append(max(pgd_timeseries[int(pick_samples):int(pick_samples+window_length*sampling_rate)]))
+                            pgd_distances.append(calc_distance(trace))
                             pgd_stations.append(tr_name)
             self.calculated_params['pgd'] = pgd_value
             self.calculated_params['pgd_distances'] = pgd_distances
             self.calculation_info['pgd_stations'] = pgd_stations
 
 
-    def pgd_calculation(timeseries):
-        pgd = [abs(timeseries[0])]
-        for i in range(1, len(timeseries)):
-            pgd.append(max(pgd[-1], abs(timeseries[i])))
-        return pgd
+
 
     def calc_delaytime(self):
         """
