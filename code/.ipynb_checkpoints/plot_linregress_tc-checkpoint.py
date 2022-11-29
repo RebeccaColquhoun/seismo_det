@@ -45,7 +45,7 @@ def gen_bs_data(x,y):
         y_bs.append(y[n])
     return x_bs, y_bs
 
-def plot_for_params(list_mags, list_tc, title):
+def plot_for_params(list_mags, list_tc, title, save = True):
     #get_ipython().run_line_magic('matplotlib', 'inline')
     params = []
     opacities = np.linspace(0.2,1,45)
@@ -136,7 +136,7 @@ def plot_for_params(list_mags, list_tc, title):
         print('plot saved')
         return np.array(x_aves_tc)-5, y_aves_tc
 
-def load_and_plot(p):
+def load_and_plot(p, save = True):
     fn = p[-1]
     print(fn)
     list_tc = []
@@ -159,7 +159,7 @@ def load_and_plot(p):
             list_mags.append(eq.event_stats['eq_mag'])
             list_mag_types.append(eq.event_stats['eq_mag_type'])
             
-    x, y = plot_for_params(list_mags, list_tc, p[-1])
+    x, y = plot_for_params(list_mags, list_tc, p[-1], save)
 
     return x, y
 

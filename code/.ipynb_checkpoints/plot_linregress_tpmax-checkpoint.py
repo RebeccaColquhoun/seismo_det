@@ -6,6 +6,7 @@ import math
 import obspy
 import pickle
 import datetime
+import scipy
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -22,19 +23,29 @@ from multiprocessing import Pool
 import random
 
 
-list_tc = []
+list_tpmax = []
 list_mags = []
 list_mag_types = []
 list_eq = []
 eqs = {}
 count = 0
 
-parameters = [
-[0.5.1,19,0.25,'eq_object_1s_bandpass_01_19_snr_20_blank_025'],
-[1,0.1,19,0.25,'eq_object_1s_bandpass_01_19_snr_20_blank_025'],
-[2,0.1,19,0.25,'eq_object_2s_bandpass_01_19_snr_20_blank_025'],
-[3,0.1,19,0.25,'eq_object_3s_bandpass_01_19_snr_20_blank_025'],
-[4,0.1,19,0.25,'eq_object_4s_bandpass_01_19_snr_20_blank_025']]
+#parameters = [[1,0.1,19,0,'eq_object_1s_bandpass_01_19_snr_20_blank_0'],
+#[1,0.1,19,0.05,'eq_object_1s_bandpass_01_19_snr_20_blank_005'],
+#[1,0.1,19,0.1,'eq_object_1s_bandpass_01_19_snr_20_blank_01'],
+#[1,0.1,19,0.25,'eq_object_1s_bandpass_01_19_snr_20_blank_025'],
+#[1,0.1,19,0.5,'eq_object_1s_bandpass_01_19_snr_20_blank_05'],
+#[4,0.1,19,0,'eq_object_4s_bandpass_01_19_snr_20_blank_0'],
+#[4,0.1,19,0.05,'eq_object_4s_bandpass_01_19_snr_20_blank_005'],
+#[4,0.1,19,0.1,'eq_object_4s_bandpass_01_19_snr_20_blank_01'],
+#[4,0.1,19,0.25,'eq_object_4s_bandpass_01_19_snr_20_blank_025'],
+#[4,0.1,19,0.5,'eq_object_4s_bandpass_01_19_snr_20_blank_05'],
+#[2,0.1,19,0.5,'eq_object_2s_bandpass_01_19_snr_20'],
+#[3,0.1,19,0.5,'eq_object_3s_bandpass_01_19_snr_20']]
+parameters = [[0.5,0.1,19,0,'eq_object_05s_bandpass_01_19_snr_20_blank_0'],
+[0.5,0.1,19,0.05,'eq_object_05s_bandpass_01_19_snr_20_blank_005'],
+[0.5,0.1,19,0.1,'eq_object_05s_bandpass_01_19_snr_20_blank_01'],
+[0.5,0.1,19,0.25,'eq_object_05s_bandpass_01_19_snr_20_blank_025']]
 
 def gen_bs_data(x,y):
     x_bs = []
@@ -45,52 +56,56 @@ def gen_bs_data(x,y):
         y_bs.append(y[n])
     return x_bs, y_bs
 
-def plot_for_params(list_mags, list_tc, title, save = True):
+def plot_for_params(list_mags, list_tpmax, title):
     #get_ipython().run_line_magic('matplotlib', 'inline')
     params = []
     opacities = np.linspace(0.2,1,45)
     import matplotlib.pyplot as plt
     cs = ['midnightblue']
     #fig, axs = plt.subplots(1,1, figsize=(12.8,9.6))
-    y_aves_tc = []
-    x_aves_tc = []
+    y_aves_tp = []
+    x_aves_tp = []
     count = 1
     eq_count = 0
+    medians = [[] for _ in range(0, 45)]
+    medians_of_medians = [[] for _ in range(0, 45)]
     n = 0
-
+    median_absolute_deviation = []
+    sum_absolute_deviation = []
+    all_abs_deviation = []
     for n in [1]:#range(1, 10):#number of stations eq at least measured at
         med_for_ad = []
         mag_for_ad = []
         fig, axs = plt.subplots(1,1, figsize=(12.8,9.6))
         for mag_lim in [3.4]:#, 3.4, 4.0, 4.4]:#np.arange(3.0, 6.5, 0.1):
-            y_aves_tc = []
-            x_aves_tc = []
+            y_aves_tp = []
+            x_aves_tp = []
             for i  in range(0, len(list_mags)):
                 if list_mags[i] > mag_lim and list_mags[i]<=max(list_mags):
                     #if list_mags[i] >= 4 and list_mags[i]<=5:
-                    if len(list_tc[i])>=n:
-                        mean_tc = np.mean(list_tc[i]) 
-                        std_tc = np.std(list_tc[i]) 
-                        y_tc = [] 
-                        for j in list_tc[i]: 
-                            if j > mean_tc-2*std_tc and j < mean_tc + 2*std_tc:# and j < 100: 
-                                y_tc.append(math.log(j, 10))
-                            elif len(list_tc[i])==1:
-                                y_tc.append(math.log(j, 10))
-                        x_tc = np.zeros(len(y_tc))  
-                        x_tc = x_tc + list_mags[i]
+                    if len(list_tpmax[i])>=n:
+                        mean_tp = np.mean(list_tpmax[i]) 
+                        std_tp = np.std(list_tpmax[i]) 
+                        y_tp = [] 
+                        for j in list_tpmax[i]: 
+                            if j > mean_tp-2*std_tp and j < mean_tp + 2*std_tp:# and j < 100: 
+                                y_tp.append(math.log(j, 10))
+                            elif len(list_tpmax[i])==1:
+                                y_tp.append(math.log(j, 10))
+                        x_tp = np.zeros(len(y_tp))  
+                        x_tp = x_tp + list_mags[i]
                         c = 0
-                        if len(x_tc)>0 and mag_lim == 3.4:
-                            if math.isnan(np.median(y_tc))==False:
-                                axs.scatter(list_mags[i]-5+np.random.uniform(-0.05, 0.05), np.median(y_tc), s = 10, c = '#003f5c', marker = 'x', zorder =110, alpha = 0.5)
-                        if math.isnan(np.median(y_tc))==False:  
-                            y_aves_tc.append(np.median(y_tc))
-                            x_aves_tc.append(list_mags[i])
-            if len(y_aves_tc)>0:
-                x_use = np.array(x_aves_tc) - 5
-                y_use = np.array(y_aves_tc)
+                        if len(x_tp)>0 and mag_lim == 3.4:
+                            if math.isnan(np.median(y_tp))==False:
+                                axs.scatter(list_mags[i]-5+np.random.uniform(-0.05, 0.05), np.median(y_tp), s = 10, c = '#003f5c', marker = 'x', zorder =110, alpha = 0.5)
+                        if math.isnan(np.median(y_tp))==False:  
+                            y_aves_tp.append(np.median(y_tp))
+                            x_aves_tp.append(list_mags[i])
+            if len(y_aves_tp)>0:
+                x_use = np.array(x_aves_tp) - 5
+                y_use = np.array(y_aves_tp)
 
-                print(len(x_aves_tc), len(y_aves_tc))
+                print(len(x_aves_tp), len(y_aves_tp))
                 count += 1
         x = x_use
         y = y_use
@@ -125,21 +140,21 @@ def plot_for_params(list_mags, list_tc, title, save = True):
         axs.fill_between(x_unique, y_min_2sd, y_max_2sd, color = '#ffa600', alpha = 0.6, zorder = 99, label = '2sd')
         popt = np.polyfit(x, y, 1)
         axs.plot(x_unique, popt[0]*x_unique+popt[1], color='#003f5c',zorder=102,label='{a:.2f}x+{b:.2f}\npearson r: {r:.4f}'.format(a=result.slope,b=result.intercept,r=result.rvalue))
-        axs.set_ylabel('log10(tc)')
+        axs.set_ylabel('log10(tpmax)')
         axs.set_xlabel('magnitude')   
         axs.set_xticks([-2,-1,0,1,2,3], [3,4,5,6,7,8], zorder = 110)
         axs.legend()
         #axs.set_ylim([-2,1])
         axs.set_title(title)
         #plt.show()
-        plt.savefig('/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/tc_different_params/linregress/'+title+'_all.pdf', format = 'pdf')
+        plt.savefig('/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/tp_different_params/linregress/'+title+'_all.pdf', format = 'pdf')
         print('plot saved')
-        return np.array(x_aves_tc)-5, y_aves_tc
+        return np.array(x_aves_tp)-5, y_aves_tp
 
-def load_and_plot(p, save = True):
+def load_and_plot(p):
     fn = p[-1]
     print(fn)
-    list_tc = []
+    list_tpmax = []
     list_mags = []
     list_mag_types = []
     folders = os.listdir('/home/earthquakes1/homes/Rebecca/phd/data/2018_2021_global_m5/')
@@ -147,19 +162,22 @@ def load_and_plot(p, save = True):
         if os.path.exists('/home/earthquakes1/homes/Rebecca/phd/data/2018_2021_global_m5/'+folders[eq_no]+'/'+fn+'.pkl'):
             with open('/home/earthquakes1/homes/Rebecca/phd/data/2018_2021_global_m5/'+folders[eq_no]+'/'+fn+'.pkl', 'rb') as picklefile:
                 eq = pickle.load(picklefile)
-            list_tc.append(eq.calculated_params['tau_c'])
-            list_mags.append(eq.event_stats['eq_mag'])
-            list_mag_types.append(eq.event_stats['eq_mag_type'])
+            try:
+                list_tpmax.append(eq.calculated_params['tau_p_max'])
+                list_mags.append(eq.event_stats['eq_mag'])
+                list_mag_types.append(eq.event_stats['eq_mag_type'])
+            except:
+                continue
     folders = os.listdir('/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/')
     for eq_no in range(0, len(folders)):
         if os.path.exists('/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/'+folders[eq_no]+'/'+fn+'.pkl'):
             with open('/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/'+folders[eq_no]+'/'+fn+'.pkl', 'rb') as picklefile:
                 eq = pickle.load(picklefile)
-            list_tc.append(eq.calculated_params['tau_c'])
+            list_tpmax.append(eq.calculated_params['tau_p_max'])
             list_mags.append(eq.event_stats['eq_mag'])
             list_mag_types.append(eq.event_stats['eq_mag_type'])
             
-    x, y = plot_for_params(list_mags, list_tc, p[-1], save)
+    x, y = plot_for_params(list_mags, list_tpmax, p[-1])
 
     return x, y
 
