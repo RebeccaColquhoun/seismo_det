@@ -46,7 +46,7 @@ class Earthquake():
     def load(self, root):
         """
 
-        loads data and removes response
+        loads data and picks and removes response
 
         Alters self.data, self.inv
 
@@ -60,9 +60,12 @@ class Earthquake():
             data_response_removed = []
             for trace in data:
                 try:
-                    if trace.stats.sampling_rate >= 40:
-                        data_response_removed.append(trace.remove_response(self.inv))
-                        self.data = obspy.Stream(traces = data_response_removed)
+                    tr_name = trace.stats.network+'.'+trace.stats.station+'.'+trace.stats.location
+                    if trace.stats.sampling_rate >= 40 and tr_name in picks.keys():
+                        snr = max(abs(trace.data[pick_samples:500+pick_samples]))/max(abs(trace.data[pick_samples-700:pick_samples-200]))
+                        if snr > 20: 
+                            data_response_removed.append(trace.remove_response(self.inv))
+                            self.data = obspy.Stream(traces = data_response_removed)
                     else:
                         self.data = False
                 except Exception:
@@ -136,56 +139,31 @@ class Earthquake():
                         sampling_rate = trace.stats.sampling_rate
                         pick = UTCDateTime(picks[tr_name])
                         pick_samples = int(round((UTCDateTime(pick) - trace.stats.starttime)*trace.stats.sampling_rate, 0))
-                        snr = max(abs(trace.data[pick_samples:500+pick_samples]))/max(abs(trace.data[pick_samples-700:pick_samples-200]))
-                        if snr > 20:
-                            # preprocess data
-                            trace.detrend()
-                            if sensor_types[i][0] == 'a':
-                                trace.filter('highpass', freq=filter_limits[0], corners=filter_corners)  # 0.078)#i_freq)
-                                trace = trace.integrate()
-                            trace.filter('highpass', freq=filter_limits[0])
-                            trace.filter('lowpass', freq=filter_limits[1])
-                            # tr.data[0:int((picks[i] - tr.stats.starttime)*sampling_rate)] = 0
-                            alpha = 1-(1/sampling_rate)
-                            x = trace.data
-                            diff = (trace.differentiate()).data
-                            X = np.zeros(len(x))
-                            D = np.zeros(len(x))
-                            start = int((pick - trace.stats.starttime)*sampling_rate)
-                            end = int(start + window_length * sampling_rate)
-                            for t in range(0, len(trace.data)):
-                                X[t] = alpha*X[t-1]+x[t]**2
-                                D[t] = alpha*D[t-1]+diff[t]**2
-                            tau_p = 2 * np.pi * np.sqrt(X/D)
-                            tau_p_list.append(tau_p)
-                            # print(max(tau_p[int(start+0.5*sampling_rate):int(end)]))
-                            tp_max.append(max(tau_p[int(start+blank_time*sampling_rate):int(end)]))
-                            tp_stations.append(tr_name)
+                        # preprocess data
+                        trace.detrend()
+                        if sensor_types[i][0] == 'a':
+                            trace.filter('highpass', freq=filter_limits[0], corners=filter_corners)  # 0.078)#i_freq)
+                            trace = trace.integrate()
+                        trace.filter('highpass', freq=filter_limits[0])
+                        trace.filter('lowpass', freq=filter_limits[1])
+                        # tr.data[0:int((picks[i] - tr.stats.starttime)*sampling_rate)] = 0
+                        alpha = 1-(1/sampling_rate)
+                        x = trace.data
+                        diff = (trace.differentiate()).data
+                        X = np.zeros(len(x))
+                        D = np.zeros(len(x))
+                        start = int((pick - trace.stats.starttime)*sampling_rate)
+                        end = int(start + window_length * sampling_rate)
+                        for t in range(0, len(trace.data)):
+                            X[t] = alpha*X[t-1]+x[t]**2
+                            D[t] = alpha*D[t-1]+diff[t]**2
+                        tau_p = 2 * np.pi * np.sqrt(X/D)
+                        tau_p_list.append(tau_p)
+                        tp_max.append(max(tau_p[int(start+blank_time*sampling_rate):int(end)]))
+                        tp_stations.append(tr_name)
             self.calculated_params["tau_p"] = tau_p_list
             self.calculation_info["tau_p_stations"] = tp_stations
             self.calculated_params["tau_p_max"] = tp_max
-
-    @property
-    def calc_pgv(self):
-        """
-
-
-        Returns
-        -------
-        TYPE
-            DESCRIPTION.
-
-        """
-        if self.data is not False:
-            data = self.data
-            """Absolute peak ground velocity"""
-            if "pgv" in self.calculated_params:
-                return self.calculated_params["pgv"]
-            # pgv = util_funcs.calc_peak(data[0].data)
-            motion = data[0].data
-            pgv = max(abs(min(motion)), max(motion))
-            self.calculated_params["pgv"] = pgv
-            return pgv
 
     def calc_tc(self, window_length=4, start_window=0):
         """
@@ -372,7 +350,6 @@ class Earthquake():
             data_interp = self.data.copy()
             data_interp.interpolate(100, 'lanczos', a=20)
             picks = self.data_stats['picks']
-            sampling_rate = 100
 
             for i in range(0, len(data_interp)):  # iterate through all traces
                 tr_name = data_interp[i].stats.network+'.'+data_interp[i].stats.station+'.'+data_interp[i].stats.location
@@ -383,9 +360,8 @@ class Earthquake():
                     try:
                         pick = UTCDateTime(picks[tr_name])
                         pick_samples = int(round((UTCDateTime(pick) - trace.stats.starttime)*trace.stats.sampling_rate, 0))
-                        snr = max(abs(trace.data[pick_samples:500+pick_samples]))/max(abs(trace.data[pick_samples-700:pick_samples-200]))
                         sampling_rate = trace.stats.sampling_rate
-                        if snr > 2 and distance < 200:
+                        if distance < 100:
                             iv2 = actual_iv2_calculation(trace, pick, window_length, subtract_bkg)
                             dist = calc_distance(trace)
                             list_iv2.append(iv2)
@@ -465,6 +441,7 @@ class Earthquake():
                             pgd_value.append(max(pgd_timeseries[int(pick_samples):int(pick_samples+window_length*sampling_rate)]))
                             pgd_distances.append(calc_distance(trace))
                             pgd_stations.append(tr_name)
+                            print(len(pgd_value), len(pgd_distances), len(pgd_stations))
             self.calculated_params['pgd'] = pgd_value
             self.calculated_params['pgd_distances'] = pgd_distances
             self.calculation_info['pgd_stations'] = pgd_stations
@@ -508,3 +485,24 @@ class Earthquake():
                     peaks_y.append(abs_displ[peak])'''
             aad = sum_abs_displ/n_records
             return aad
+    @property
+    def calc_pgv(self):
+        """
+
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
+        if self.data is not False:
+            data = self.data
+            """Absolute peak ground velocity"""
+            if "pgv" in self.calculated_params:
+                return self.calculated_params["pgv"]
+            # pgv = util_funcs.calc_peak(data[0].data)
+            motion = data[0].data
+            pgv = max(abs(min(motion)), max(motion))
+            self.calculated_params["pgv"] = pgv
+            return pgv
