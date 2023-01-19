@@ -5,7 +5,10 @@ import util
 import pickle
 from multiprocessing import Pool
 
-parameters = [[0.5, 0.1, 19, 0, 'eq_object_05s_bandpass_01_19_snr_20_blank_0'],
+parameters = [[0.3, 0.1, 19, 0, 'eq_object_03s_bandpass_01_19_snr_20_blank_0'],
+              [0.3, 0.1, 19, 0.05, 'eq_object_03s_bandpass_01_19_snr_20_blank_005'],
+              [0.3, 0.1, 19, 0.1, 'eq_object_03s_bandpass_01_19_snr_20_blank_01']]
+'''[[0.5, 0.1, 19, 0, 'eq_object_05s_bandpass_01_19_snr_20_blank_0'],
               [0.5, 0.1, 19, 0.05, 'eq_object_05s_bandpass_01_19_snr_20_blank_005'],
               [0.5, 0.1, 19, 0.1, 'eq_object_05s_bandpass_01_19_snr_20_blank_01'],
               [0.5, 0.1, 19, 0.25, 'eq_object_05s_bandpass_01_19_snr_20_blank_025'],
@@ -18,7 +21,7 @@ parameters = [[0.5, 0.1, 19, 0, 'eq_object_05s_bandpass_01_19_snr_20_blank_0'],
               [4, 0.1, 19, 0.05, 'eq_object_4s_bandpass_01_19_snr_20_blank_005'],
               [4, 0.1, 19, 0.1, 'eq_object_4s_bandpass_01_19_snr_20_blank_01'],
               [4, 0.1, 19, 0.25, 'eq_object_4s_bandpass_01_19_snr_20_blank_025'],
-              [4, 0.1, 19, 0.5, 'eq_object_4s_bandpass_01_19_snr_20_blank_05']]
+              [4, 0.1, 19, 0.5, 'eq_object_4s_bandpass_01_19_snr_20_blank_05']]'''
 
 root_path = '/home/earthquakes1/homes/Rebecca/phd/data/'
 count = 0
@@ -51,7 +54,7 @@ def do_calculation_new(num_proc=0):
 
 
 def build_list():
-    wanted_list = ['2005_2018_global_m5']
+    wanted_list = ['2005_2018_global_m5', '2018_2021_global_m5', '2019_global_m3']
     list_for_multi = []
     for wanted in wanted_list:
         eq_with_data, cat_with_data = find_with_data(wanted)
