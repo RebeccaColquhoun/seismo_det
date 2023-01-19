@@ -6,3 +6,4 @@ figures/.DS_Store
 /code/node_modules
 .ipynb_checkpoints
 figures
+.pyc
