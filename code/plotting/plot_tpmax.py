@@ -29,6 +29,10 @@ filenames = ['eq_object_03s_bandpass_01_19_snr_20_blank_0_new',
               'eq_object_4s_bandpass_01_19_snr_20_blank_01_new',
               'eq_object_4s_bandpass_01_19_snr_20_blank_025_new',
               'eq_object_4s_bandpass_01_19_snr_20_blank_05_new']'''
+filenames = ['eq_object_03s_bandpass_01_19_snr_20_blank_0_new',
+            'eq_object_05s_bandpass_01_19_snr_20_blank_0_new',
+            'eq_object_1s_bandpass_01_19_snr_20_blank_0_new',
+            'eq_object_4s_bandpass_01_19_snr_20_blank_0_new']
 
 magnitudes = np.arange(3,8, 0.1)
 def sort_tp_data(df, mag_lim = 0):
@@ -124,21 +128,24 @@ def plot_tpmax(title, mag_lim, list_mags, list_tpmax):
 
             y_min_2sd = np.minimum(np.minimum(y_1, y_2), np.minimum(y_3, y_4))
             y_max_2sd = np.maximum(np.maximum(y_1, y_2), np.maximum(y_3, y_4))        
-
+            
+            median, bin_edges, bin_number = scipy.stats.binned_statistic(x, y, statistic='median', bins=np.arange(-2,3,0.1), range=None)
+            
             #plt.scatter(x+np.random.uniform(-0.05, 0.05, len(x)),y, marker = 'x', color = 'k', s = 10, alpha = 0.5)
             axs.fill_between(x_unique, y_min_1sd, y_max_1sd, color = '#bc5090', alpha = 0.6, zorder = 100, label = '1sd')
             axs.fill_between(x_unique, y_min_2sd, y_max_2sd, color = '#ffa600', alpha = 0.6, zorder = 99, label = '2sd')
             popt = np.polyfit(x, y, 1)
             axs.plot(x_unique, popt[0]*x_unique+popt[1], color='#003f5c',zorder=102,label='{a:.2f}x+{b:.2f}\npearson r: {r:.4f}'.format(a=result.slope,b=result.intercept-5*result.slope,r=result.rvalue))
             axs.set_ylabel('log10(tpmax)')
-            axs.set_xlabel('magnitude')   
+            axs.set_xlabel('magnitude')
+            axs.scatter(bin_edges[:-1]+0.05, median, marker = 'o', color = 'orange', zorder = 1000)
             axs.set_xticks([-2,-1,0,1,2,3], [3,4,5,6,7,8], zorder = 110)
             axs.legend()
             #axs.set_ylim([-2,1])
             t = title.split('_')
             axs.set_title(f'Predominant period, window = {t[2]}, blanked time = {t[-2][0]}.{t[-2][1:]}s')
             #plt.show()
-            plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/all_data/tpmax/{title}/mag{mag_lim:.1f}.pdf', format = 'pdf')
+            plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/all_data/tpmax/{title}_medians.pdf', format = 'pdf')
             plt.close()
             return result.rvalue
 
@@ -146,7 +153,8 @@ def plot_tpmax(title, mag_lim, list_mags, list_tpmax):
 for f in filenames:
     if os.path.exists(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/all_data/tpmax/{f}') == False:
         os.makedirs(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/all_data/tpmax/{f}')
-    for mag_lim in magnitudes:
+    if True: #for mag_lim in magnitudes:
+        mag_lim = 3.
         df = pd.read_pickle(f'/home/earthquakes1/homes/Rebecca/phd/data/results_database/{f}')
         list_mags, list_tpmax = sort_tp_data(df, mag_lim)
         print(len(list_mags), len(list_tpmax))
