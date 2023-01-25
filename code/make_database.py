@@ -21,23 +21,23 @@ list_base_folders = ['/home/earthquakes1/homes/Rebecca/phd/data/2005_2018_global
 
 # In[3]:
 
-filenames = ['eq_object_03s_bandpass_01_19_snr_20_blank_0_new',
-              'eq_object_03s_bandpass_01_19_snr_20_blank_005_new',
-              'eq_object_03s_bandpass_01_19_snr_20_blank_01_new']
-'''filenames = ['eq_object_05s_bandpass_01_19_snr_20_blank_0_new',
-             'eq_object_05s_bandpass_01_19_snr_20_blank_005_new', 
-             'eq_object_05s_bandpass_01_19_snr_20_blank_01_new',
-             'eq_object_05s_bandpass_01_19_snr_20_blank_025_new',
-             'eq_object_1s_bandpass_01_19_snr_20_blank_0_new', 
-             'eq_object_1s_bandpass_01_19_snr_20_blank_005_new',
-             'eq_object_1s_bandpass_01_19_snr_20_blank_01_new',
-             'eq_object_1s_bandpass_01_19_snr_20_blank_025_new',
-             'eq_object_1s_bandpass_01_19_snr_20_blank_05_new',
-              'eq_object_4s_bandpass_01_19_snr_20_blank_0_new',
-              'eq_object_4s_bandpass_01_19_snr_20_blank_005_new',
-              'eq_object_4s_bandpass_01_19_snr_20_blank_01_new',
-              'eq_object_4s_bandpass_01_19_snr_20_blank_025_new',
-              'eq_object_4s_bandpass_01_19_snr_20_blank_05_new']'''
+filenames = ['eq_object_03s_bandpass_01_19_snr_20_blank_0_new_snr20',
+              'eq_object_03s_bandpass_01_19_snr_20_blank_005_new_snr20',
+              'eq_object_03s_bandpass_01_19_snr_20_blank_01_new_snr20',
+             'eq_object_05s_bandpass_01_19_snr_20_blank_0_new_snr20',
+             'eq_object_05s_bandpass_01_19_snr_20_blank_005_new_snr20', 
+             'eq_object_05s_bandpass_01_19_snr_20_blank_01_new_snr20',
+             'eq_object_05s_bandpass_01_19_snr_20_blank_025_new_snr20',
+             'eq_object_1s_bandpass_01_19_snr_20_blank_0_new_snr20', 
+             'eq_object_1s_bandpass_01_19_snr_20_blank_005_new_snr20',
+             'eq_object_1s_bandpass_01_19_snr_20_blank_01_new_snr20',
+             'eq_object_1s_bandpass_01_19_snr_20_blank_025_new_snr20',
+             'eq_object_1s_bandpass_01_19_snr_20_blank_05_new_snr20',
+              'eq_object_4s_bandpass_01_19_snr_20_blank_0_new_snr20',
+              'eq_object_4s_bandpass_01_19_snr_20_blank_005_new_snr20',
+              'eq_object_4s_bandpass_01_19_snr_20_blank_01_new_snr20',
+              'eq_object_4s_bandpass_01_19_snr_20_blank_025_new_snr20',
+              'eq_object_4s_bandpass_01_19_snr_20_blank_05_new_snr20']
 
 
 # In[4]:
@@ -100,12 +100,6 @@ for fn in filenames:
             os.makedirs(base_folder+'results_database/')
         df.to_pickle(base_folder+'results_database/'+fn)
 
-
-
-# In[47]:
-
-
-for fn in filenames:
     df = pd.read_pickle('/home/earthquakes1/homes/Rebecca/phd/data/2005_2018_global_m5/results_database/'+fn)
     df2 = pd.read_pickle('/home/earthquakes1/homes/Rebecca/phd/data/2018_2021_global_m5/results_database/'+fn)
     df3 = pd.read_pickle('/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/results_database/'+fn)
@@ -118,5 +112,5 @@ for fn in filenames:
 # In[48]:
 
 
-df = pd.read_pickle('/home/earthquakes1/homes/Rebecca/phd/data/results_database/eq_object_1s_bandpass_01_19_snr_20_blank_025_new')
+#df = pd.read_pickle('/home/earthquakes1/homes/Rebecca/phd/data/results_database/eq_object_1s_bandpass_01_19_snr_20_blank_025_new')
 
