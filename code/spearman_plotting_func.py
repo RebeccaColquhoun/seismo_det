@@ -8,13 +8,13 @@ from obspy import UTCDateTime
 from obspy.clients.fdsn import Client
 import pandas as pd
 import math
-
+import figure_sizes
 import matplotlib
 matplotlib.rcParams.update({'font.size': 20})
 
 magnitudes = np.arange(3,7.1, 0.1)
-colors = {'tp':'#7f58af', 'tc':'pink', 'iv2' : 'c', 'pgd' : 'orange'}
-
+colors = {'tp':'#7f58af', 'tc':'#e84d8a', 'iv2' : '#64c5eb', 'pgd' : '#7fb646'}
+window_lengths = {'0.3':4, '0.5':4.4, '1' : 5.02, '4' : 6.22}
 def sort_tp_data(df, mag_lim = 0):
     list_tp_all = list(df.tp_max)
     list_mag_all = list(df.eq_mag)
@@ -200,8 +200,9 @@ def name_to_time(f):
         return time
     
 def plot_spearman_subplots(f, gradt, gradt_std, spearman, spearman_p, n, var = 'tp', save = False):
+    matplotlib.rcParams.update({'font.size': 20})
     time = name_to_time(f)
-    fig, axs = plt.subplots(5,1, figsize = (12,9), sharex = True)
+    fig, axs = plt.subplots(5,1, figsize = figure_sizes.a4portrait, sharex = True)
     magn = magnitudes[0:len(spearman)]
     axs[0].plot(magn,gradt, color = colors[var])
     axs[0].set_ylabel('gradient')
@@ -223,13 +224,16 @@ def plot_spearman_subplots(f, gradt, gradt_std, spearman, spearman_p, n, var = '
     axs[0].grid(True); axs[1].grid(True); axs[2].grid(True); axs[3].grid(True); axs[4].grid(True)
     
     if save == True:
-        plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/gradt_spearman/{var}_purple_with_number_window_{time}.pdf', dpi=400)
+        plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/gradt_spearman/{var}_with_number_window_{time}.pdf', dpi=400)
     plt.show()
 
 def plot_spearman_subplots_all_on_one(f, tp_params, pgd_params, iv2_params, tc_params, save = False):
     params = [tp_params, pgd_params, iv2_params, tc_params]#[gradt, gradt_std, spearman, spearman_p, n, var]
     time = name_to_time(f)
-    fig, axs = plt.subplots(5,1, figsize = (12,9), sharex = True)
+    fig, axs = plt.subplots(5,1, figsize = figure_sizes.a5landscape, sharex = True)
+    axs[0].plot([],[],color='k',label = 'significant')
+    axs[0].plot([],[],color='k',linestyle = ':', label = 'insignificant')
+
     for p in params:
         magn = magnitudes[0:len(p[2])]
         mask = np.array(p[3])>0.05
@@ -240,12 +244,15 @@ def plot_spearman_subplots_all_on_one(f, tp_params, pgd_params, iv2_params, tc_p
             mag_neg_mask = magn[:flip]  
             for i in range(0, 5):
                 axs[i].plot(mag_mask,np.array(p[i])[(flip-1):], color = colors[p[5]], linestyle = ':')
-                axs[i].plot(mag_neg_mask,np.array(p[i])[:flip], color = colors[p[5]])
+                axs[i].plot(mag_neg_mask,np.array(p[i])[:flip], color = colors[p[5]], label = p[-1])
         else:
             for i in range(0, 5):
                 axs[i].plot(magn,p[i], color = colors[p[5]])
-        
+
         axs[3].axhspan(0, 0.05, facecolor='grey', alpha=0.2)
+    for ax in axs:
+        ax.vlines(window_lengths[str(time)], 0, 1, transform=ax.get_xaxis_transform(), color = 'grey', linewidth=1.5)
+
     axs[0].set_ylabel('gradient')
     axs[1].set_ylabel('gradient std')
     axs[2].set_ylabel('spearman r')
@@ -256,7 +263,126 @@ def plot_spearman_subplots_all_on_one(f, tp_params, pgd_params, iv2_params, tc_p
     axs[3].set_xlim([3,7])
     axs[0].grid(True); axs[1].grid(True); axs[2].grid(True); axs[3].grid(True); axs[4].grid(True)
     axs[0].autoscale(True, 'y'); axs[1].autoscale(True, 'y'); axs[2].autoscale(True, 'y'); axs[3].autoscale(True, 'y'); axs[4].autoscale(True, 'y')
+    handles, labels = axs[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc='lower center', ncol = len(labels))
+    figure = plt.gcf()
+    figure.set_size_inches(figure_sizes.a5landscape)
     if save == True:
-        plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/gradt_spearman/{var}_purple_with_number_window_{time}.pdf', dpi=400)
+        plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/gradt_spearman/combined_with_number_window_{time}.pdf', dpi=400)
     plt.show()
 
+def plot_spearman_subplots_all_on_one_no_n(f, tp_params, pgd_params, iv2_params, tc_params, save = False):
+    params = [tp_params, pgd_params, iv2_params, tc_params]#[gradt, gradt_std, spearman, spearman_p, n, var]
+    time = name_to_time(f)
+    fig, axs = plt.subplots(4,1, figsize = figure_sizes.a5landscape, sharex = True)
+    axs[0].plot([],[],color='k',label = 'significant')
+    axs[0].plot([],[],color='k',linestyle = ':', label = 'insignificant')
+    for p in params:
+        magn = magnitudes[0:len(p[2])]
+        mask = np.array(p[3])>0.05
+        res = [idx for idx, val in enumerate(p[3]) if val > 0.05]
+        if len(res)>0:
+            flip = res[0]
+            mag_mask = magn[(flip-1):]
+            mag_neg_mask = magn[:flip]  
+            for i in range(0, 4):
+                axs[i].plot(mag_mask,np.array(p[i])[(flip-1):], color = colors[p[5]], linestyle = ':', linewidth=2)
+                axs[i].plot(mag_neg_mask,np.array(p[i])[:flip], color = colors[p[5]], label = p[-1], linewidth=2)
+        else:
+            for i in range(0, 4):
+                axs[i].plot(magn,p[i], color = colors[p[5]], linewidth=2)
+
+        axs[3].axhspan(0, 0.05, facecolor='grey', alpha=0.2)
+    for ax in axs:
+        ax.vlines(window_lengths[str(time)], 0, 1, transform=ax.get_xaxis_transform(), color = 'grey', linewidth=1.5)
+
+    axs[0].set_ylabel('gradient')
+    axs[1].set_ylabel('gradient std')
+    axs[2].set_ylabel('spearman r')
+    axs[3].set_ylabel('p-value of\n  spearman \n (H0=linearly \n uncorrelated)')
+    #axs[4].set_ylabel('n')
+    axs[0].set_title(f'{time} s window')
+    axs[3].set_xlabel('max mag')
+    axs[3].set_xlim([3,7])
+    axs[0].grid(True); axs[1].grid(True); axs[2].grid(True); axs[3].grid(True)
+    axs[0].autoscale(True, 'y'); axs[1].autoscale(True, 'y'); axs[2].autoscale(True, 'y'); axs[3].autoscale(True, 'y')
+    handles, labels = axs[0].get_legend_handles_labels()
+    figure = plt.gcf()
+    figure.set_size_inches(figure_sizes.a4portrait)
+    fig.legend(handles, labels, loc='lower center', ncol = len(labels), bbox_to_anchor = (0.03, -0.03,1,1),bbox_transform = figure.transFigure)
+    figure.tight_layout()
+    if save == True:
+        plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/gradt_spearman/combined_no_number_window_{time}.pdf', dpi=400, bbox_inches='tight')
+    plt.show()
+    
+def plot_spearman_subplots_all_on_one_no_n_shaded(f, tp_params, pgd_params, iv2_params, tc_params, save = False):
+    params = [tp_params, pgd_params, iv2_params, tc_params]#[gradt, gradt_std, spearman, spearman_p, n, var]
+    time = name_to_time(f)
+    fig, axs = plt.subplots(3,1, figsize = figure_sizes.a4square, sharex = True, height_ratios = [2,1,1])
+    axs[0].plot([],[],color='k',label = 'significant')
+    axs[0].plot([],[],color='k',linestyle = ':', label = 'insignificant')
+    #axs[0].fill_between([],[], [],color='k',alpha = 0.3, label = '1 s.d.')
+    for p in params:
+        magn = magnitudes[0:len(p[2])]
+        mask = np.array(p[3])>0.05
+        res = [idx for idx, val in enumerate(p[3]) if val > 0.05]
+        if len(res)>0:
+            flip = res[0]
+            mag_mask = magn[(flip-1):]
+            mag_neg_mask = magn[:flip]  
+            for i in range(0, 4):
+                if i == 0:
+                    print('i=0')
+                    axs[i].plot(mag_mask,np.array(p[i])[(flip-1):], color = colors[p[5]], linestyle = ':', linewidth=2)
+                    axs[i].plot(mag_neg_mask,np.array(p[i])[:flip], color = colors[p[5]], label = p[-1], linewidth=2)
+                elif i == 1:
+                    print('i=1')
+                    axs[0].fill_between(magn,np.array(p[1])+np.array(p[0]),np.array(p[0])-np.array(p[1]), color = colors[p[5]], alpha = 0.3)
+                    #axs[1].plot(mag_neg_mask,np.array(p[i])[:flip], color = colors[p[5]], label = p[-1], linewidth=2)
+                else:
+                    print('in else')
+                    axs[i-1].plot(mag_mask,np.array(p[i])[(flip-1):], color = colors[p[5]], linestyle = ':', linewidth=2)
+                    axs[i-1].plot(mag_neg_mask,np.array(p[i])[:flip], color = colors[p[5]], label = p[-1], linewidth=2)
+        else:
+            for i in [0,2,3]:
+                if i == 0:
+                    axs[i].plot(magn,p[i], color = colors[p[5]], linewidth=2)
+                elif i == 1:
+                    axs[0].fill_between(magn,np.array(p[1])+np.array(p[0]),np.array(p[0])-np.array(p[1]), color = colors[p[5]], alpha = 0.3)
+                    #axs[1].plot(mag_neg_mask,np.array(p[i])[:flip], color = colors[p[5]], label = p[-1], linewidth=2)
+                else:
+                    axs[i-1].plot(magn,p[i], color = colors[p[5]], linewidth=2)
+                
+
+        axs[2].axhspan(0, 0.05, facecolor='grey', alpha=0.05)
+    for ax in axs:
+        ax.vlines(window_lengths[str(time)], 0, 1, transform=ax.get_xaxis_transform(), color = 'grey', linewidth=1.5)
+        ax.tick_params(axis='both', which='major', labelsize=14)
+        #ax.tick_params(axis='both', which='minor', labelsize=8)
+    axs[0].set_ylabel('Gradient', fontsize = 14)
+    axs[1].set_ylabel('Spearman r', fontsize = 14)
+    axs[2].set_ylabel('p-value of\n  spearman r', fontsize = 14)
+    #axs[4].set_ylabel('n')
+    axs[0].set_title(f'{time} s Window', fontsize = 14)
+    axs[2].set_xlabel('Min mag', fontsize = 14)
+    axs[2].set_xlim([3,7])
+    axs[0].grid(True); axs[1].grid(True); axs[2].grid(True)
+    axs[0].autoscale(True, 'y'); axs[1].autoscale(True, 'y'); axs[2].autoscale(True, 'y')
+    matplotlib.rcParams.update({'font.size': 14})
+    import matplotlib.transforms as mtransforms
+    trans = mtransforms.ScaledTranslation(-20/72, 7/72, fig.dpi_scale_trans)
+    axs[0].text(0.0, 1.0, 'a)', transform=axs[0].transAxes + trans,
+                fontsize='14', va='bottom')
+    axs[1].text(0.0, 1.0, 'b)', transform=axs[1].transAxes + trans,
+                fontsize='14', va='bottom')
+    axs[2].text(0.0, 1.0, 'c)', transform=axs[2].transAxes + trans,
+                fontsize='14', va='bottom')
+
+    handles, labels = axs[0].get_legend_handles_labels()
+    figure = plt.gcf()
+    figure.set_size_inches(figure_sizes.a4square)
+    fig.legend(handles, labels, loc='lower center', ncol = 3, bbox_to_anchor = (0.03, -0.1,1,1),bbox_transform = figure.transFigure)
+    figure.tight_layout()
+    if save == True:
+        plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/gradt_spearman/shaded_combined_no_number_window_{time}.pdf', dpi=400, bbox_inches='tight')
+    plt.show()
