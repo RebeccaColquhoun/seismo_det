@@ -327,7 +327,7 @@ class Earthquake():
             vel = tr.copy()
             v2 = vel.copy()
             if bkg is True:
-                bkg = vel.data[start-(200+window*100):start-200]
+                bkg = vel.data[int(start-(200+window*100)):int(start-200)] #bkg is window length seconds of velocity counting backwards from 200 samples before the pick
                 bkg = bkg**2
                 bkg_ave = np.mean(bkg)
             else:
@@ -421,24 +421,25 @@ class Earthquake():
                         snr = max(abs(trace.data[pick_samples:500+pick_samples]))/max(abs(trace.data[pick_samples-700:pick_samples-200]))
                         if snr > 20:
                             trace.detrend()
-                            print(sensor_types[i][0])
+                            #print(sensor_types[i][0])
                             if sensor_types[i][0].lower() == 'a':
                                 trace.filter('highpass', freq=0.075, corners=4)  # 0.078)#i_freq)
                                 vel = trace.integrate()
                                 displ = vel.integrate()
-                                print('in if')
+                                #print('in if')
                             elif sensor_types[i][0].lower() == 'v':
                                 trace.filter('highpass', freq=0.075, corners=4)  # 0.078)#i_freq)
                                 displ= trace.integrate()
-                                print('in elif')
+                                #print('in elif')
                             else:
-                                print('in else')
+                                continue
+                                #print('in else')
                             pgd_timeseries = pgd_calculation(displ)
-                            print(pick_samples, pick_samples+window_length)
+                            #print(pick_samples, pick_samples+window_length)
                             pgd_value.append(max(pgd_timeseries[int(pick_samples):int(pick_samples+window_length*sampling_rate)]))
                             pgd_distances.append(calc_distance(trace))
                             pgd_stations.append(tr_name)
-                            print(len(pgd_value), len(pgd_distances), len(pgd_stations))
+                            #print(len(pgd_value), len(pgd_distances), len(pgd_stations))
             self.calculated_params['pgd'] = pgd_value
             self.calculated_params['pgd_distances'] = pgd_distances
             self.calculation_info['pgd_stations'] = pgd_stations
