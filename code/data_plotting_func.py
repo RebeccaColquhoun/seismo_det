@@ -16,14 +16,14 @@ magnitudes = np.arange(3,7.1, 0.1)
 colors = {'tp':'#7f58af', 'tc':'#e84d8a', 'iv2' : '#64c5eb', 'pgd' : '#7fb646'}
 
 window_lengths = {'0.3':4, '0.5':4.4, '1' : 5.02, '4' : 6.22}
-def sort_tp_data(df, mag_lim = 0):
+def sort_tp_data(df, mag_lim = 0, n = 0):
     list_tp_all = list(df.tp_max)
     list_mag_all = list(df.eq_mag)
     list_mag = []
     list_tpmax = []
     count = 0
     for m in range(0, len(list_mag_all)):
-        if list_mag_all[m] > mag_lim:
+        if list_mag_all[m] > mag_lim and len(list_tp_all[m])>=n:
             list_mag.append(list_mag_all[m])
             list_tpmax.append([])
             for d in range(0, len(list_tp_all[m])):
@@ -32,14 +32,14 @@ def sort_tp_data(df, mag_lim = 0):
             count += 1
     return list_mag, list_tpmax
 
-def sort_tc_data(df, mag_lim = 0):
+def sort_tc_data(df, mag_lim = 0, n = 0):
     list_tc_all = list(df.tc)
     list_mag_all = list(df.eq_mag)
     list_mag = []
     list_tc = []
     count = 0
     for m in range(0, len(list_mag_all)):
-        if list_mag_all[m] > mag_lim:
+        if list_mag_all[m] > mag_lim and len(list_tc_all[m])>=n:
             list_mag.append(list_mag_all[m])
             list_tc.append([])
             for d in range(0, len(list_tc_all[m])):
@@ -48,7 +48,7 @@ def sort_tc_data(df, mag_lim = 0):
             count += 1
     return list_mag, list_tc
 
-def sort_iv2_data(df, mag_lim = 0):
+def sort_iv2_data(df, mag_lim = 0, n = 0):
     list_iv2_all = list(df.iv2)
     list_mag_all = list(df.eq_mag)
     list_dist_Distance = list(df.iv2_distances)
@@ -57,7 +57,7 @@ def sort_iv2_data(df, mag_lim = 0):
     list_iv2 = []
     eq = 0
     for m in range(0, len(list_mag_all)):
-        if list_mag_all[m]>mag_lim:
+        if list_mag_all[m]>mag_lim and len(list_iv2_all[m])>=n:
             someTrue = len(list_iv2_all[m])
             for d in range(0, len(list_dist_Distance[m])):
                 if list_iv2_all[m][d] != None:
@@ -65,7 +65,7 @@ def sort_iv2_data(df, mag_lim = 0):
                     list_iv2.append(list_iv2_all[m][d])
                     list_dist.append(float(str(np.array(list_dist_Distance[m][d]))[:-3]))
     return list_mag, list_iv2, list_dist
-def sort_pgd_data(df, mag_lim = 0):
+def sort_pgd_data(df, mag_lim = 0, n = 0):
     list_pgd_all = list(df.pgd)
     list_mag_all = list(df.eq_mag)
     list_dist_Distance = list(df.pgd_distances)
@@ -74,7 +74,7 @@ def sort_pgd_data(df, mag_lim = 0):
     list_pgd = []
     eq = 0
     for m in range(0, len(list_mag_all)):
-        if list_mag_all[m]>mag_lim:
+        if list_mag_all[m]>mag_lim and len(list_pgd_all[m])>=n:
             someTrue = len(list_pgd_all[m])
             for d in range(0, len(list_dist_Distance[m])):
                 if list_pgd_all[m][d] != None:
@@ -87,9 +87,9 @@ def sort_pgd_data(df, mag_lim = 0):
                 eq += 1
     return list_mag, list_pgd, list_dist
 
-def calc_tp_mag_lim(df, mag_lim):
+def calc_tp_mag_lim(df, mag_lim, n = 0):
     #print(mag_lim)
-    list_mags, list_tpmax = sort_tp_data(df, mag_lim)
+    list_mags, list_tpmax = sort_tp_data(df, mag_lim, n = n)
     params = []
     y_aves_tp = []
     x_aves_tp = []
@@ -112,9 +112,9 @@ def calc_tp_mag_lim(df, mag_lim):
                 x_aves_tp.append(list_mags[i])
     return x_aves_tp, y_aves_tp
 
-def calc_tc_mag_lim(df, mag_lim):
+def calc_tc_mag_lim(df, mag_lim, n = 0):
     #print(mag_lim)
-    list_mags, list_tc = sort_tc_data(df, mag_lim)
+    list_mags, list_tc = sort_tc_data(df, mag_lim, n = n)
     params = []
     y_aves_tc = []
     x_aves_tc = []
@@ -138,8 +138,8 @@ def calc_tc_mag_lim(df, mag_lim):
     return x_aves_tc, y_aves_tc
 
 
-def calc_pgd_mag_lim(df, mag_lim):
-    list_mag, list_pgd, list_dist = sort_pgd_data(df, mag_lim)
+def calc_pgd_mag_lim(df, mag_lim, n = 0):
+    list_mag, list_pgd, list_dist = sort_pgd_data(df, mag_lim, n = n)
     if len(list_mag)>1 and len(list_dist)>1 and len(list_pgd)>1:
         dist_corr_mult_alt = (np.array(list_dist)**1.38)*np.array(list_pgd)
         df3  = pd.DataFrame({'pgd':np.log10(dist_corr_mult_alt), 'mag':list_mag, 'dist':list_dist})
@@ -150,8 +150,8 @@ def calc_pgd_mag_lim(df, mag_lim):
     else:
         return [],[]
 
-def calc_iv2_mag_lim(df, mag_lim, r_corr = '2'):
-    list_mag, list_iv2, list_dist = sort_iv2_data(df, mag_lim)
+def calc_iv2_mag_lim(df, mag_lim, r_corr = '2', n = 0):
+    list_mag, list_iv2, list_dist = sort_iv2_data(df, mag_lim, n = n)
     if len(list_mag)>1 and len(list_dist)>1 and len(list_iv2)>1:
         r_corr = float(r_corr)
         dist_corr_mult = (np.array(list_dist)**r_corr)*np.array(list_iv2)
@@ -199,18 +199,32 @@ def name_to_time(f):
     else:
         time = time[0]+'.'+time[1]
         return time
+
+def name_to_snr(f):
+    l = f.split('_')
+    snr = l[-1]
+    if snr[0:3]=='snr':
+        return snr[3:]
     
-def plot_data_subplots(x_list, y_list, types, f):
+def name_to_blank(f):
+    l = f.split('_')
+    blank = l[9]
+    return blank
+    
+def plot_data_subplots(x_list, y_list, types, f, save = False, show = True, title = None, path = None):
     fig, axs = plt.subplots(2,2,figsize = figure_sizes.a4landscape, sharex = True)
+    time = name_to_time(f)
+    snr = name_to_snr(f)
+    blank = name_to_blank(f)
     for i in range(0, 4):
         row = i//2
         col = i%2
         axs[row][col].grid(True)
-        axs[row][col].scatter(x_list[i]+np.random.uniform(-0.05, 0.05, len(x_list[i])), y_list[i], marker = 'x', color = colors[types[i]], s = 10, alpha = 0.5, zorder = 100)
+        axs[row][col].scatter(x_list[i]+np.random.uniform(-0.05, 0.05, len(x_list[i])), y_list[i], marker = 'x', color = colors[types[i]], s = 10, alpha = 0.5, zorder = 100, rasterized = True)
         axs[row][col].set_ylabel(types[i], fontsize = 12, labelpad = 0)
         axs[row][col].tick_params(axis='both', which='major', labelsize=12)
         axs[row][col].set_xticks([3,4,5,6,7,8], zorder = 110)
-        median, bin_edges, bin_number = scipy.stats.binned_statistic(x_list[i], y_list[i], statistic='median', bins=np.arange(3,8,0.1), range=None)
+        median, bin_edges, bin_number = scipy.stats.binned_statistic(x_list[i], y_list[i], statistic='median', bins=np.arange(2.95,8.05,0.1), range=None)
         axs[row][col].scatter(bin_edges[:-1]+0.05, median, marker = 'o', facecolor = 'lightgrey', edgecolors = colors[types[i]], zorder = 1000)
     import matplotlib.transforms as mtransforms
     trans = mtransforms.ScaledTranslation(-20/72, 7/72, fig.dpi_scale_trans)
@@ -221,12 +235,82 @@ def plot_data_subplots(x_list, y_list, types, f):
     axs[1][0].text(0.0, 1.0, 'c)', transform=axs[1][0].transAxes + trans,
                 fontsize='12', va='bottom')
     axs[1][1].text(0.0, 1.0, 'd)', transform=axs[1][1].transAxes + trans,
-                fontsize='12', va='bottom')   
+                fontsize='12', va='bottom')
+    #y = ax.get_yticks()
+    
+    axs[0][0].set_yticks([-1,0,1,2],[1e-1, 1e+0, 1e+1,1e+2])
+    axs[0][0].set_ylim([-1,2])
+    axs[1][0].set_yticks([-1,0,1,2],[1e-1, 1e+0, 1e+1,1e+2])
+    axs[1][0].set_ylim([-1,2])
+    axs[0][1].set_yticklabels(10**axs[0][1].get_yticks())
+    axs[1][1].set_yticklabels(10**axs[1][1].get_yticks())
+    
+    axs[0][0].ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    axs[0][1].ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    axs[1][0].ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    axs[1][1].ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    
+    if title is not None:
+        fig.suptitle(f'{title} --- {name_to_time(f)} s window')
+    else:
+        fig.suptitle(f'{name_to_time(f)} s window')  
+    figure = plt.gcf()
+    figure.set_size_inches(figure_sizes.a4landscape)
+    figure.tight_layout()
+    if save == True and path == None:
+        plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/data_subplots/no_lines_{time}_blankwindow_{name_to_blank(f)}_snr{snr}.pdf')
+        print('saved default')
+    elif save == True and path!= None:
+        plt.savefig(path)
+        print('saved to path')
+    if show == True:
+        plt.show()
+    return figure
+    
+def plot_data_subplots_grey(x_list, y_list, types, f):
+    fig, axs = plt.subplots(2,2,figsize = figure_sizes.a4landscape, sharex = True)
+    time = name_to_time(f)
+    snr = name_to_snr(f)
+    blank = name_to_blank(f)
+    for i in range(0, 4):
+        row = i//2
+        col = i%2
+        axs[row][col].grid(True)
+        axs[row][col].scatter(x_list[i]+np.random.uniform(-0.05, 0.05, len(x_list[i])), y_list[i], marker = 'x', color = 'lightgrey', s = 10, alpha = 0.5, zorder = 100, rasterized = True)
+        axs[row][col].set_ylabel(types[i], fontsize = 12, labelpad = 0)
+        axs[row][col].tick_params(axis='both', which='major', labelsize=12)
+        axs[row][col].set_xticks([3,4,5,6,7,8], zorder = 110)
+        median, bin_edges, bin_number = scipy.stats.binned_statistic(x_list[i], y_list[i], statistic='median', bins=np.arange(2.95,8.05,0.1), range=None)
+        axs[row][col].scatter(bin_edges[:-1]+0.05, median, marker = 'x', facecolor = colors[types[i]], edgecolors = colors[types[i]], zorder = 1000)
+    import matplotlib.transforms as mtransforms
+    trans = mtransforms.ScaledTranslation(-20/72, 7/72, fig.dpi_scale_trans)
+    axs[0][0].text(0.0, 1.0, 'a)', transform=axs[0][0].transAxes + trans,
+                fontsize='12', va='bottom')
+    axs[0][1].text(0.0, 1.0, 'b)', transform=axs[0][1].transAxes + trans,
+                fontsize='12', va='bottom')
+    axs[1][0].text(0.0, 1.0, 'c)', transform=axs[1][0].transAxes + trans,
+                fontsize='12', va='bottom')
+    axs[1][1].text(0.0, 1.0, 'd)', transform=axs[1][1].transAxes + trans,
+                fontsize='12', va='bottom')
+    #y = ax.get_yticks()
+    
+    axs[0][0].set_yticks([-1,0,1,2],[1e-1, 1e+0, 1e+1,1e+2])
+    axs[0][0].set_ylim([-1,2])
+    axs[1][0].set_yticks([-1,0,1,2],[1e-1, 1e+0, 1e+1,1e+2])
+    axs[1][0].set_ylim([-1,2])
+    axs[0][1].set_yticklabels(10**axs[0][1].get_yticks())
+    axs[1][1].set_yticklabels(10**axs[1][1].get_yticks())
+    
+    axs[0][0].ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    axs[0][1].ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    axs[1][0].ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    axs[1][1].ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    
     fig.suptitle(f'{name_to_time(f)} s window')      
     figure = plt.gcf()
     figure.set_size_inches(figure_sizes.a4landscape)
     figure.tight_layout()
-    plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/data_subplots/no_lines_{name_to_time(f)}.pdf')
+    plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/data_subplots/no_lines_{time}_blankwindow_{name_to_blank(f)}_snr{snr}_grey.pdf')
     plt.show()
 
 def calc_min_max(std_level, a, b, std_a, std_b, x_unique = np.arange(3,8,0.1)):
@@ -242,9 +326,11 @@ def calc_min_max(std_level, a, b, std_a, std_b, x_unique = np.arange(3,8,0.1)):
     return y_min, y_max
  
     
-def plot_data_subplots_line(x_list, y_list, types, f, tp_params, pgd_params, tc_params, iv2_params):
+def plot_data_subplots_line(x_list, y_list, types, f, tp_params, pgd_params, tc_params, iv2_params, n = 0, save = False, show = True):
     params = [tp_params, pgd_params, tc_params, iv2_params]
     time = name_to_time(f)
+    snr = name_to_snr(f)
+    blank = name_to_blank(f)
     #[gradt, gradt_std, intercept, intercept_std]
     x_unique = np.arange(3,8,0.1)
     fig, axs = plt.subplots(2,2,figsize = figure_sizes.a4landscape, sharex = True)
@@ -252,7 +338,7 @@ def plot_data_subplots_line(x_list, y_list, types, f, tp_params, pgd_params, tc_
         row = i//2
         col = i%2
         axs[row][col].grid(True)
-        axs[row][col].scatter(x_list[i]+np.random.uniform(-0.05, 0.05, len(x_list[i])), y_list[i], marker = 'x', color = colors[types[i]], s = 10, alpha = 0.5, zorder = 80)
+        axs[row][col].scatter(x_list[i]+np.random.uniform(-0.05, 0.05, len(x_list[i])), y_list[i], marker = 'x', color = colors[types[i]], s = 10, alpha = 0.5, zorder = 80, rasterized = True)
         axs[row][col].set_ylabel(types[i], fontsize = 12, labelpad = -2)
         axs[row][col].tick_params(axis='both', which='major', labelsize=12)
         axs[row][col].set_xticks([3,4,5,6,7,8], zorder = 110)
@@ -262,13 +348,16 @@ def plot_data_subplots_line(x_list, y_list, types, f, tp_params, pgd_params, tc_
         std_a = params[i][1][0]
         b = params[i][2][0]
         std_b = params[i][3][0]
-        #median, bin_edges, bin_number = scipy.stats.binned_statistic(x_list[i], y_list[i], statistic='median', bins=np.arange(3,8,0.1), range=None)
-        #axs[row][col].scatter(bin_edges[:-1]+0.05, median, marker = 'o', facecolor = 'lightgrey', edgecolors = colors[types[i]], zorder = 1000)
+        median, bin_edges, bin_number = scipy.stats.binned_statistic(x_list[i], y_list[i], statistic='median', bins=np.arange(2.95,8.05,0.1), range=None)
+        axs[row][col].scatter(bin_edges[:-1]+0.05, median, marker = 'o', facecolor = 'lightgrey', edgecolors = colors[types[i]], zorder = 1000)
         y_min, y_max = calc_min_max(1, a, b, std_a, std_b, x_unique = x_unique)
-        axs[row][col].fill_between(x_unique, y_min-5*a, y_max-5*a, color = '#003f5c', alpha = 0.1, zorder = 100, label = '1sd')
+        axs[row][col].fill_between(x_unique, y_min-5*a, y_max-5*a, color = '#003f5c', alpha = 0.1, zorder = 100)#, label = '1sd')
         y_min, y_max = calc_min_max(2, a, b, std_a, std_b, x_unique  = x_unique)
-        axs[row][col].fill_between(x_unique, y_min-5*a, y_max-5*a, color = '#003f5c', alpha = 0.2, zorder = 99, label = '2sd')
-        axs[row][col].plot(x_unique, a*x_unique+(b-(5*a)), color='#003f5c',zorder=102,label=f'{a:.2f}x+{(b-5*a):.2f}')
+        axs[row][col].fill_between(x_unique, y_min-5*a, y_max-5*a, color = '#003f5c', alpha = 0.2, zorder = 99)#, label = '2sd')
+        if b-5*a >=0:
+            axs[row][col].plot(x_unique, a*x_unique+(b-(5*a)), color='#003f5c',zorder=102,label=f'M3+: {a:.2f}M+{(b-5*a):.2f}')
+        else:
+            axs[row][col].plot(x_unique, a*x_unique+(b-(5*a)), color='#003f5c',zorder=102,label=f'M3+: {a:.2f}M-{abs((b-5*a)):.2f}')
         
         x_unique = np.arange(window_lengths[time],8,0.1)
         
@@ -279,10 +368,11 @@ def plot_data_subplots_line(x_list, y_list, types, f, tp_params, pgd_params, tc_
         #median, bin_edges, bin_number = scipy.stats.binned_statistic(x_list[i], y_list[i], statistic='median', bins=np.arange(3,8,0.1), range=None)
         #axs[row][col].scatter(bin_edges[:-1]+0.05, median, marker = 'o', facecolor = 'lightgrey', edgecolors = colors[types[i]], zorder = 1000)
         y_min, y_max = calc_min_max(1, a, b, std_a, std_b, x_unique = x_unique)
-        axs[row][col].fill_between(x_unique, y_min-5*a, y_max-5*a, color = '#003f5c', alpha = 0.1, zorder = 100, label = '1sd')
+        axs[row][col].fill_between(x_unique, y_min-5*a, y_max-5*a, color = '#003f5c', alpha = 0.1, zorder = 100)#, label = f'M{window_lengths[time]} -- 1sd -- {a:.2f}M+{b:.2f}')
         y_min, y_max = calc_min_max(2, a, b, std_a, std_b, x_unique  = x_unique)
-        axs[row][col].fill_between(x_unique, y_min-5*a, y_max-5*a, color = '#003f5c', alpha = 0.2, zorder = 99, label = '2sd')
-        axs[row][col].plot(x_unique, a*x_unique+(b-(5*a)), color='#003f5c',zorder=102,label=f'{a:.2f}x+{(b-5*a):.2f}')
+        axs[row][col].fill_between(x_unique, y_min-5*a, y_max-5*a, color = '#003f5c', alpha = 0.2, zorder = 99)#, label = f'2sd -- {a:2f}M+{b:2f}')
+        axs[row][col].plot(x_unique, a*x_unique+(b-(5*a)), color='#003f5c',zorder=102,linestyle = '--', label=f'M{window_lengths[time]}+: {a:.2f}M+{(b-5*a):.2f}')
+        axs[row][col].legend()
     import matplotlib.transforms as mtransforms
     trans = mtransforms.ScaledTranslation(-20/72, 7/72, fig.dpi_scale_trans)
     axs[0][0].text(0.0, 1.0, 'a)', transform=axs[0][0].transAxes + trans,
@@ -292,10 +382,27 @@ def plot_data_subplots_line(x_list, y_list, types, f, tp_params, pgd_params, tc_
     axs[1][0].text(0.0, 1.0, 'c)', transform=axs[1][0].transAxes + trans,
                 fontsize='12', va='bottom')
     axs[1][1].text(0.0, 1.0, 'd)', transform=axs[1][1].transAxes + trans,
-                fontsize='12', va='bottom')    
-    fig.suptitle(f'{time} s window')       
+                fontsize='12', va='bottom')
+    
+    axs[0][0].set_yticks([-1,0,1,2],[1e-1, 1e+0, 1e+1,1e+2])
+    axs[0][0].set_ylim([-1,2])
+    axs[1][0].set_yticks([-1,0,1,2],[1e-1, 1e+0, 1e+1,1e+2])
+    axs[1][0].set_ylim([-1,2])
+    axs[0][1].set_yticklabels(10**axs[0][1].get_yticks())
+    axs[1][1].set_yticklabels(10**axs[1][1].get_yticks())
+    
+    axs[0][0].ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    axs[0][1].ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    axs[1][0].ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    axs[1][1].ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    
+    fig.suptitle(f'{time} s window, snr = {snr}')       
     figure = plt.gcf()
     figure.set_size_inches(figure_sizes.a4landscape)
     figure.tight_layout()
-    plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/data_subplots/two_lines_{name_to_time(f)}.pdf')
-    plt.show()
+    if save == True:
+        plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/data_subplots/with_n/two_lines_{time}_blankwindow_{name_to_blank(f)}_snr{snr}_n{n}.pdf')
+    if show == True:
+        plt.show()
+    else:
+        plt.close()
