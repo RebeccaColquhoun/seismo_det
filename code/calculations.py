@@ -70,7 +70,7 @@ def build_list():
 def single_eq_calculation(calculation_values):
     eq_with_data_item, event, folder, params = calculation_values
     WINDOW_LEN, min_filter, max_filter, blank_window, fn = params
-    if os.path.isfile(folder + eq_with_data_item + '/' + fn + '_new_snr20.pkl') is False:
+    if os.path.isfile(folder + eq_with_data_item + '/' + fn + '_new_snr5.pkl') is False:
         eq = earthquake.Earthquake(eq_with_data_item, event, root=folder)
         eq.eq_info()
         eq.load(root=folder)
@@ -86,7 +86,7 @@ def single_eq_calculation(calculation_values):
             if eq.data is not False:
                 del(eq.data)
                 print(eq.event_stats['name'],fn)
-                with open(folder + eq_with_data_item + '/' + fn + '_new_snr20.pkl', 'wb') as picklefile:
+                with open(folder + eq_with_data_item + '/' + fn + '_new_snr5.pkl', 'wb') as picklefile:
                     pickle.dump(eq, picklefile)
             else:
                 print('data problem')
