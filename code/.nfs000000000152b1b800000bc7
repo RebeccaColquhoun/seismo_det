@@ -10,25 +10,14 @@ matplotlib.rcParams.update({'font.size': 14})
 from spearman_plotting_func import *
 
 hypo = True
-laptop = True
-
-if hypo and not laptop:
+if hypo:
     data_path = '/home/earthquakes1/homes/Rebecca/phd/data/results_database_hypo'
-    save_path = '/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/overlaps_reversed/hypocentral'
-elif not hypo and not laptop:
+    save_path = '/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/overlaps/hypocentral'
+else:
+    save_path = '/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/overlaps/epicentral'
     data_path = '/home/earthquakes1/homes/Rebecca/phd/data/results_database'
-    save_path = '/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/overlaps_reversed/epicentral'
-elif hypo and laptop:
-    data_path = '/Users/rebecca/Documents/PhD/Research/Frequency/data/results_database_hypo'
-    save_path = '/Users/rebecca/Documents/PhD/Research/Frequency/seismo_det/figures/overlaps_reversed/hypocentral'
-elif not hypo and laptop:
-    data_path = '/Users/rebecca/Documents/PhD/Research/Frequency/data/results_database'
-    save_path = '/Users/rebecca/Documents/PhD/Research/Frequency/seismo_det/figures/overlaps_reversed/epicentral'
 
 def test_overlap_subplots(params):
-    '''This function looks at whether the gradient at the
-        point where all data is used is within the bounds
-        of the gradient when significance is lost'''
     print('testing overlap')
     param_names = ['tp', 'tc', 'iv2', 'pgd']
     colors = {'tp': '#7f58af', 'tc': '#e84d8a', 'iv2': '#64c5eb', 'pgd': '#7fb646'}
@@ -52,21 +41,21 @@ def test_overlap_subplots(params):
             always_significant += f'{param_name} '
 
 
-        if p[0][0] >= p[0][flip]-p[1][flip] and p[0][0] <= p[0][flip]+ p[1][flip]:
+        if p[0][flip] >= p[0][0]-p[1][0] and p[0][flip] <= p[0][0]+ p[1][0]:
             print('overlap at 1 s.d.')
-            print(f'{p[0][0]} in range [{p[0][flip]-p[1][flip]}, {p[0][flip]+p[1][flip]}]')
+            print(f'{p[0][flip]} in range [{p[0][0]-p[1][0]}, {p[0][0]+p[1][0]}]')
             marker = marker + '1_'
         else:
             marker = marker + '0_'
-        if p[0][0] >= p[0][flip]-2*p[1][flip] and p[0][0] <= p[0][flip]+2*p[1][flip]:
+        if p[0][flip] >= p[0][0]-2*p[1][0] and p[0][flip] <= p[0][0]+2*p[1][0]:
             print('overlap at 2 s.d.')
-            print(f'{p[0][0]} in range [{p[0][flip]-2*p[1][flip]}, {p[0][flip]+2*p[1][flip]}]')
+            print(f'{p[0][flip]} in range [{p[0][0]-2*p[1][0]}, {p[0][0]+2*p[1][0]}]')
             marker = marker + '1_'
         else:
             marker = marker + '0_'
-        if p[0][0] <= p[0][flip]-2*p[1][flip] or p[0][0] >= p[0][flip]+2*p[1][flip]:
+        if p[0][flip] <= p[0][0]-2*p[1][0] or p[0][flip] >= p[0][0]+2*p[1][0]:
             print('no overlap at 2 s.d')
-            print(f'{p[0][0]} NOT in range [{p[0][flip]-2*p[1][flip]}, {p[0][flip]+2*p[1][flip]}]')
+            print(f'{p[0][flip]} NOT in range [{p[0][0]-2*p[1][0]}, {p[0][0]+2*p[1][0]}]')
 
         mu = p[0][0]
         sigma = p[1][0]
@@ -185,4 +174,3 @@ for f in filenames:
                 print('iv2', spearman[0])
 
             test_overlap_subplots([tp_params, tc_params, iv2_params, pgd_params])
-
