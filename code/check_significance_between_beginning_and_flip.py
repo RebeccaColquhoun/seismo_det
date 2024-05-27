@@ -9,8 +9,13 @@ matplotlib.rcParams.update({'font.size': 14})
 
 from spearman_plotting_func import *
 
-data_path = '/Users/rebecca/Documents/PhD/Research/Frequency/data/results_database_hypo'
-save_path = '/Users/rebecca/Documents/PhD/Research/Frequency/seismo_det/figures/overlaps/hypocentral'
+hypo = True
+if hypo:
+    data_path = '/home/earthquakes1/homes/Rebecca/phd/data/results_database_hypo'
+    save_path = '/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/overlaps/hypocentral'
+else:
+    save_path = '/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/overlaps/epicentral'
+    data_path = '/home/earthquakes1/homes/Rebecca/phd/data/results_database'
 
 def test_overlap_subplots(params):
     print('testing overlap')
@@ -100,7 +105,7 @@ def test_overlap_subplots(params):
         fig.tight_layout()
         fig.savefig(f'{save_path}/{f}_nstations_{n_stations}_mindist_{min_dist}_overlap_{marker[:-1]}_always_significant_{always_significant}.png')
 
-filenames = os.listdir('{data_path}/')
+filenames = os.listdir(f'{data_path}/')
 # ['eq_object_03s_bandpass_01_19_snr_20_blank_0_new_snr20',
 #              'eq_object_05s_bandpass_01_19_snr_20_blank_0_new_snr20',
 #              'eq_object_1s_bandpass_01_19_snr_20_blank_0_new_snr20',
