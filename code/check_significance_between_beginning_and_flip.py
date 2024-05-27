@@ -9,13 +9,21 @@ matplotlib.rcParams.update({'font.size': 14})
 
 from spearman_plotting_func import *
 
-hypo = True
-if hypo:
+hypo = False
+laptop = True
+
+if hypo and not laptop:
     data_path = '/home/earthquakes1/homes/Rebecca/phd/data/results_database_hypo'
-    save_path = '/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/overlaps/hypocentral'
-else:
-    save_path = '/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/overlaps/epicentral'
-    data_path = '/home/earthquakes1/homes/Rebecca/phd/data/results_database'
+    save_path = '/home/earthquakes1/homes/Rebecca/seismo_det/figures/overlaps/hypocentral'
+elif not hypo and not laptop:
+    data_path = '/home/earthquakes1/homes/Rebecca/data/results_database'
+    save_path = '/home/earthquakes1/homes/Rebecca/seismo_det/figures/overlaps/epicentral'
+elif hypo and laptop:
+    data_path = '/Users/rebecca/Documents/PhD/Research/Frequency/data/results_database_hypo'
+    save_path = '/Users/rebecca/Documents/PhD/Research/Frequency/seismo_det/figures/overlaps/hypocentral'
+elif not hypo and laptop:
+    data_path = '/Users/rebecca/Documents/PhD/Research/Frequency/data/results_database
+    save_path = '/Users/rebecca/Documents/PhD/Research/Frequency/seismo_det/figures/overlaps/epicentral'
 
 def test_overlap_subplots(params):
     print('testing overlap')
