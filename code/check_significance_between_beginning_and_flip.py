@@ -22,10 +22,14 @@ elif hypo and laptop:
     data_path = '/Users/rebecca/Documents/PhD/Research/Frequency/data/results_database_hypo'
     save_path = '/Users/rebecca/Documents/PhD/Research/Frequency/seismo_det/figures/overlaps/hypocentral'
 elif not hypo and laptop:
-    data_path = '/Users/rebecca/Documents/PhD/Research/Frequency/data/results_database
+    data_path = '/Users/rebecca/Documents/PhD/Research/Frequency/data/results_database'
     save_path = '/Users/rebecca/Documents/PhD/Research/Frequency/seismo_det/figures/overlaps/epicentral'
 
 def test_overlap_subplots(params):
+    '''This function looks at whether the gradient at the
+        point where signficance is lost is within the bounds
+        of the gradient when all data is used'''
+
     print('testing overlap')
     param_names = ['tp', 'tc', 'iv2', 'pgd']
     colors = {'tp': '#7f58af', 'tc': '#e84d8a', 'iv2': '#64c5eb', 'pgd': '#7fb646'}

@@ -26,6 +26,9 @@ elif not hypo and laptop:
     save_path = '/Users/rebecca/Documents/PhD/Research/Frequency/seismo_det/figures/overlaps_reversed/epicentral'
 
 def test_overlap_subplots(params):
+    '''This function looks at whether the gradient at the
+        point where all data is used is within the bounds
+        of the gradient when significance is lost'''
     print('testing overlap')
     param_names = ['tp', 'tc', 'iv2', 'pgd']
     colors = {'tp': '#7f58af', 'tc': '#e84d8a', 'iv2': '#64c5eb', 'pgd': '#7fb646'}
