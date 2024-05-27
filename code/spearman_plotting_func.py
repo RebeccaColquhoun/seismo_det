@@ -500,10 +500,10 @@ def plot_spearman_subplots_all_on_one_no_n_shaded_percent_var(f,
     for p in params:
         magn = magnitudes[0:len(p[2])]
         res = [idx for idx, val in enumerate(p[4]) if val > 0.05]
-        #print(p[0])
-        #print(res)
-        #print(magn)
-        #print(p)
+        # print(p[0])
+        # print(res)
+        # print(magn)
+        # print(p)
         if len(magn) == 0:
             for ax in axs:
                 ax.plot([], [], color=colors[p[6]], linewidth=2, label=p[-1])
@@ -514,6 +514,7 @@ def plot_spearman_subplots_all_on_one_no_n_shaded_percent_var(f,
                     # print('else, i=0')
                     # print(p[i],p[5])
                     axs[i].plot(magn, np.array(p[i]), color=colors[p[6]], linewidth=2, label=p[-1])
+                    ax2 = axs[i].twinx()
                 elif i == 1:
                     # print('else, i=1')
                     axs[0].fill_between(magn, np.array(p[1]) + np.array(p[0]), np.array(p[0]) - np.array(p[1]),
