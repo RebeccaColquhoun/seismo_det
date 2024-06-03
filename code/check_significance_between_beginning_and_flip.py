@@ -9,8 +9,8 @@ matplotlib.rcParams.update({'font.size': 14})
 
 from spearman_plotting_func import *
 
-hypo = False
-laptop = True
+hypo = True
+laptop = False
 
 if hypo and not laptop:
     data_path = '/home/earthquakes1/homes/Rebecca/phd/data/results_database_hypo'
