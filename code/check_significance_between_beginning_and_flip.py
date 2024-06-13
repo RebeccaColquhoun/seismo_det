@@ -50,7 +50,7 @@ def test_overlap_subplots(params):
             flip = res[0]
         else:
             flip = -1
-            always_significant += f'{param_name} '
+            always_significant += f'{param_name}'
 
 
         if p[0][flip] >= p[0][0]-p[1][0] and p[0][flip] <= p[0][0]+ p[1][0]:
