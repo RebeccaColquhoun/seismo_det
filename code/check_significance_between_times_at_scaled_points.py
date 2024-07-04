@@ -59,7 +59,7 @@ iv2_df = pd.DataFrame(index=['03s_gradt', '03s_std',
                       columns=['one', 'two', 'three', 'ten'])
 
 
-def gradt_hist_subplots(params, scale_size='one'):
+def gradt_hist_subplots_panels_methods(params, scale_size='one'):
 
     param_names = ['tp', 'tc', 'iv2', 'pgd']
     # colors = {'tp': '#7f58af', 'tc': '#e84d8a', 'iv2': '#64c5eb', 'pgd': '#7fb646'}
@@ -104,8 +104,116 @@ def gradt_hist_subplots(params, scale_size='one'):
 
     fig.suptitle(f'Distribution of gradients for different time windows \n min mag corresponding to {scale_size} x earthquake')
     fig.tight_layout()
-    fig.savefig(f'{save_path}/scale_{scale_size}.png')
+    fig.savefig(f'{save_path}/figure_comparable_{scale_size}_panels_methods.png')
 
+def gradt_hist_subplots_panels_windows(params):
+
+    param_names = ['tp', 'tc', 'iv2', 'pgd']
+    # colors = {'tp': '#7f58af', 'tc': '#e84d8a', 'iv2': '#64c5eb', 'pgd': '#7fb646'}
+    # colors_darker = {'tp': '#4f407a', 'tc': '#5c2037', 'iv2': '#2b5160', 'pgd': '#39511f'}
+    colors = {'tp': {'one': '#4f407a', 'two': '#7f58af', 'three': '#d2c2ff', 'ten': '#e9e0ff'},
+              'tc': {'one': '#a23679', 'two': '#e84d8a', 'three': '#ffaadf', 'ten': '#ffd4ef'},
+              'iv2': {'one': '#0f5571', 'two': '#1788b5', 'three': '#66c5eb', 'ten': '#b6f4ff'},
+              'pgd': {'one': '#4e6e2b', 'two': '#679339', 'three': '#7fb646', 'ten': '#a7cd7e'}}
+    xlim = {'tp': {'min': -0.25, 'max': 0.5},
+              'tc': {'min': -0.5, 'max': 0.75},
+              'iv2': {'min': -1, 'max': 2},
+              'pgd': {'min': -0.5, 'max': 2}}
+
+    marker = ''
+
+    for i, p in enumerate(params):
+        param_name = param_names[i]
+        print(param_name)
+
+        fig, axs = plt.subplots(2, 2, figsize=(12, 9))
+        c = colors[param_name]
+
+
+        for j, time in enumerate(['03s', '05s', '1s', '4s']):
+            row, col = j % 2, j // 2
+            for scale_size in ['one', 'two', 'three', 'ten']:
+                mu = p.loc[f'{time}_gradt'][scale_size]
+                sigma = p.loc[f'{time}_std'][scale_size]
+
+                x = np.linspace(mu - 3 * sigma, mu + 3 * sigma, 100)
+                pdf = stats.norm.pdf(x, mu, sigma)
+                axs[row][col].plot(x, pdf, label=scale_size, color=c[scale_size])
+                axs[row][col].fill_between(x, pdf, color=c[scale_size], alpha=0.5)
+                axs[row][col].vlines(mu, 0, max(pdf), color=c[scale_size], linestyle='-')
+
+                difference_array = np.absolute(x - (mu - sigma))
+                index = difference_array.argmin()
+                axs[row][col].vlines(mu - sigma, 0, pdf[index], color=c[scale_size], linestyle='--')
+                axs[row][col].vlines(mu + sigma, 0, pdf[100 - index], color=c[scale_size], linestyle='--')
+
+                difference_array = np.absolute(x - (mu - 2 * sigma))
+                index = difference_array.argmin()
+                axs[row][col].vlines(mu - 2 * sigma, 0, pdf[index], color=c[scale_size], linestyle=':')
+                axs[row][col].vlines(mu + 2 * sigma, 0, pdf[100 - index], color=c[scale_size], linestyle=':')
+            axs[row][col].legend()
+            axs[row][col].set_title(f'{time} window')
+            axs[row][col].set_xlim([xlim[param_name]['min'], xlim[param_name]['max']])
+
+        fig.suptitle(f'Distribution of gradient of {param_name}')
+        fig.tight_layout()
+        fig.savefig(f'{save_path}/figure_method_{param_name}_panels_windows.png')
+    #plt.show()
+
+def gradt_hist_subplots_panels_comparable(params):
+
+    param_names = ['tp', 'tc', 'iv2', 'pgd']
+    # colors = {'tp': '#7f58af', 'tc': '#e84d8a', 'iv2': '#64c5eb', 'pgd': '#7fb646'}
+    # colors_darker = {'tp': '#4f407a', 'tc': '#5c2037', 'iv2': '#2b5160', 'pgd': '#39511f'}
+    colors = {'tp': {'03s': '#4f407a', '05s': '#7f58af', '1s': '#d2c2ff', '4s': '#e9e0ff'},
+              'tc': {'03s': '#a23679', '05s': '#e84d8a', '1s': '#ffaadf', '4s': '#ffd4ef'},
+              'iv2': {'03s': '#0f5571', '05s': '#1788b5', '1s': '#66c5eb', '4s': '#b6f4ff'},
+              'pgd': {'03s': '#4e6e2b', '05s': '#679339', '1s': '#7fb646', '4s': '#a7cd7e'}}
+    marker = ''
+
+    xlim = {'tp': {'min': -0.25, 'max': 0.5},
+              'tc': {'min': -0.5, 'max': 0.5},
+              'iv2': {'min': -1, 'max': 3},
+              'pgd': {'min': 0, 'max': 2}}
+
+    for i, p in enumerate(params):
+        param_name = param_names[i]
+        print(param_name)
+
+        fig, axs = plt.subplots(2, 2, figsize=(12, 9))
+        c = colors[param_name]
+
+        for j, scale_size in enumerate(['one', 'two', 'three', 'ten']):
+
+            col, row = j % 2, j // 2
+            for time in ['03s', '05s', '1s', '4s']:
+                print(time)
+                mu = p.loc[f'{time}_gradt'][scale_size]
+                sigma = p.loc[f'{time}_std'][scale_size]
+
+                x = np.linspace(mu - 3 * sigma, mu + 3 * sigma, 100)
+                pdf = stats.norm.pdf(x, mu, sigma)
+                axs[row][col].plot(x, pdf, label=time, color=c[time])
+                axs[row][col].fill_between(x, pdf, color=c[time], alpha=0.5)
+                axs[row][col].vlines(mu, 0, max(pdf), color=c[time], linestyle='-')
+
+                difference_array = np.absolute(x - (mu - sigma))
+                index = difference_array.argmin()
+                axs[row][col].vlines(mu - sigma, 0, pdf[index], color=c[time], linestyle='--')
+                axs[row][col].vlines(mu + sigma, 0, pdf[100 - index], color=c[time], linestyle='--')
+
+                difference_array = np.absolute(x - (mu - 2 * sigma))
+                index = difference_array.argmin()
+                axs[row][col].vlines(mu - 2 * sigma, 0, pdf[index], color=c[time], linestyle=':')
+                axs[row][col].vlines(mu + 2 * sigma, 0, pdf[100 - index], color=c[time], linestyle=':')
+            axs[row][col].legend()
+            axs[row][col].set_title(f'seeing {scale_size} x earthquake')
+            axs[row][col].set_xlim([xlim[param_name]['min'], xlim[param_name]['max']])
+
+        fig.suptitle(f'Distribution of gradient of {param_name}')
+        fig.tight_layout()
+        fig.savefig(f'{save_path}/figure_method_{param_name}_panels_comparable.png')
+    plt.show()
 
 def fill_out_df(df_param, params, f, scale_size='one'):
     time = f[10:].split('_')[0]
@@ -233,5 +341,8 @@ print(tc_df)
 print(iv2_df)
 print(pgd_df)
 
-for scale_size in ['one', 'two', 'three', 'ten']:
-    gradt_hist_subplots([tp_df, tc_df, iv2_df, pgd_df], scale_size=scale_size)
+# for scale_size in ['one', 'two', 'three', 'ten']:
+#     gradt_hist_subplots([tp_df, tc_df, iv2_df, pgd_df], scale_size=scale_size)
+
+#gradt_hist_subplots_panels_windows([tp_df, tc_df, iv2_df, pgd_df])
+gradt_hist_subplots_panels_comparable([tp_df, tc_df, iv2_df, pgd_df])
