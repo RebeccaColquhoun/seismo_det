@@ -299,15 +299,15 @@ def plot_data_subplots(x_list, y_list, types, f,
     snr = name_to_snr(f)
     blank = name_to_blank(f)
     for i in range(0, 4):
-        row = i // 2
-        col = i % 2
+        col = i // 2
+        row = i % 2
         axs[row][col].grid(True)
         axs[row][col].scatter(x_list[i] + np.random.uniform(-0.05, 0.05, len(x_list[i])), y_list[i],
                               marker='x', color=colors[types[i]], s=10, alpha=0.5, zorder=100, rasterized=True)
         axs[row][col].set_ylabel(labels[types[i]], fontsize=12, labelpad=0)
         axs[row][col].tick_params(axis='both', which='major', labelsize=12)
         axs[row][col].set_xticks([3, 4, 5, 6, 7, 8], [], zorder=110)
-        
+
         ax2 = axs[row][col].twiny()
 
         new_tick_locations = 2/3*(np.arange(13,24,1)-9.1)
@@ -342,36 +342,36 @@ def plot_data_subplots(x_list, y_list, types, f,
                    fontsize='12', va='bottom')
     # y = ax.get_yticks()
 
-    axs[0][0].set_yticks([-1, 0, 1, 2], [1e-1, 1e+0, 1e+1, 1e+2])
+    axs[0][0].set_yticks([-1, 0, 1, 2], [fr'$10^{{{-1}}}$', 1, 10, fr'$10^{{{2}}}$'])
     axs[0][0].set_ylim([-1, 2])
-    axs[1][0].set_yticks([-1, 0, 1, 2], [1e-1, 1e+0, 1e+1, 1e+2])
-    axs[1][0].set_ylim([-1, 2])
-    axs[0][1].set_yticks(axs[0][1].get_yticks(), ['{0:.0e}'.format(
-        flt) for flt in 10**axs[0][1].get_yticks()])
-    axs[1][1].set_yticks(axs[1][1].get_yticks(), ['{0:.0e}'.format(
-        flt) for flt in 10**axs[1][1].get_yticks()])
-    axs[1][0].set_xticks([3, 4, 5, 6, 7, 8], [3, 4, 5, 6, 7, 8], zorder=110)
+
+    axs[0][1].set_yticks([-1, 0, 1, 2], [fr'$10^{{{-1}}}$', 1, 10, fr'$10^{{{2}}}$'])
+    axs[0][1].set_ylim([-1, 2])
+
+    axs[1][0].set_yticks(axs[1][0].get_yticks(), [fr'$10^{{{int(flt)}}}$' for flt in axs[1][0].get_yticks()])
+    axs[1][1].set_yticks(axs[1][1].get_yticks(), [fr'$10^{{{int(flt)}}}$' for flt in axs[1][1].get_yticks()])
+    axs[0][1].set_xticks([3, 4, 5, 6, 7, 8], [3, 4, 5, 6, 7, 8], zorder=110)
     axs[1][1].set_xticks([3, 4, 5, 6, 7, 8], [3, 4, 5, 6, 7, 8], zorder=110)
 
-    if title is not None:
-        fig.suptitle(f'''
-                     {title} ---
-                     {name_to_time(f)} s window,
-                     snr = {snr}, n >= {n},
-                     distances = {min_dist}--{max_dist} km''',
-                     fontsize=14, horizontalalignment = 'center')
-    else:
-        fig.suptitle(
-            f'''
-            {name_to_time(f)} s window,
-            snr = {snr}, n >= {n},
-            distances = {min_dist}--{max_dist} km''', fontsize=14, horizontalalignment = 'center')
+    # if title is not None:
+    #     fig.suptitle(f'''
+    #                  {title} ---
+    #                  {name_to_time(f)} s window,
+    #                  snr = {snr}, n >= {n},
+    #                  distances = {min_dist}--{max_dist} km''',
+    #                  fontsize=14, horizontalalignment = 'center')
+    # else:
+    #     fig.suptitle(
+    #         f'''
+    #         {name_to_time(f)} s window,
+    #         snr = {snr}, n >= {n},
+    #         distances = {min_dist}--{max_dist} km''', fontsize=14, horizontalalignment = 'center')
     figure = plt.gcf()
     figure.set_size_inches(figure_sizes.a4landscape)
     figure.tight_layout()
     if save is True and path is None:
         plt.savefig(
-            f'''/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/data_subplots/no_lines_{time}_blankwindow_{blank}_snr{snr}_n{n}_dist{min_dist}_{max_dist}.pdf''')
+            f'''/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/final/data_subplots/no_lines_{time}_blankwindow_{blank}_snr{snr}_n{n}_dist{min_dist}_{max_dist}.pdf''')
         print('saved default')
     elif save is True and path is not None:
         plt.savefig(path)
@@ -389,15 +389,15 @@ def plot_data_subplots_grey(x_list, y_list, types, f,
     snr = name_to_snr(f)
     blank = name_to_blank(f)
     for i in range(0, 4):
-        row = i // 2
-        col = i % 2
+        col = i // 2
+        row = i % 2
         axs[row][col].grid(True)
         axs[row][col].scatter(x_list[i] + np.random.uniform(-0.05, 0.05, len(x_list[i])), y_list[i],
                               marker='x', color='lightgrey', s=10, alpha=0.5, zorder=100, rasterized=True)
         axs[row][col].set_ylabel(labels[types[i]], fontsize=12, labelpad=0)
         axs[row][col].tick_params(axis='both', which='major', labelsize=12)
         axs[row][col].set_xticks([3, 4, 5, 6, 7, 8], [], zorder=110)
-        
+
         ax2 = axs[row][col].twiny()
 
         new_tick_locations = 2/3*(np.arange(13,24,1)-9.1)
@@ -416,8 +416,8 @@ def plot_data_subplots_grey(x_list, y_list, types, f,
         if row ==1:
             axs[row][col].set_xlabel('Magnitude')
             ax2.set_xticklabels([])
-            
-       
+
+
         median, bin_edges, bin_number = scipy.stats.binned_statistic(
             x_list[i], y_list[i], statistic='median', bins=np.arange(2.95, 8.05, 0.1), range=None)
         axs[row][col].scatter(bin_edges[:-1] + 0.05, median, marker='x',
@@ -434,30 +434,30 @@ def plot_data_subplots_grey(x_list, y_list, types, f,
                    fontsize='12', va='bottom')
     # y = ax.get_yticks()
 
-    axs[0][0].set_yticks([-1, 0, 1, 2], [1e-1, 1e+0, 1e+1, 1e+2])
+    axs[0][0].set_yticks([-1, 0, 1, 2], [fr'$10^{{{-1}}}$', 1, 10, fr'$10^{{{2}}}$'])
     axs[0][0].set_ylim([-1, 2])
-    axs[1][0].set_yticks([-1, 0, 1, 2], [1e-1, 1e+0, 1e+1, 1e+2])
-    axs[1][0].set_ylim([-1, 2])
-    axs[0][1].set_yticks(axs[0][1].get_yticks(), ['{0:.0e}'.format(
-        flt) for flt in 10**axs[0][1].get_yticks()])
-    axs[1][1].set_yticks(axs[1][1].get_yticks(), ['{0:.0e}'.format(
-        flt) for flt in 10**axs[1][1].get_yticks()])
-    axs[1][0].set_xticks([3, 4, 5, 6, 7, 8], [3, 4, 5, 6, 7, 8], zorder=110)
+
+    axs[0][1].set_yticks([-1, 0, 1, 2], [fr'$10^{{{-1}}}$', 1, 10, fr'$10^{{{2}}}$'])
+    axs[0][1].set_ylim([-1, 2])
+
+    axs[1][0].set_yticks(axs[1][0].get_yticks(), [fr'$10^{{{int(flt)}}}$' for flt in axs[1][0].get_yticks()])
+    axs[1][1].set_yticks(axs[1][1].get_yticks(), [fr'$10^{{{int(flt)}}}$' for flt in axs[1][1].get_yticks()])
+    axs[0][1].set_xticks([3, 4, 5, 6, 7, 8], [3, 4, 5, 6, 7, 8], zorder=110)
     axs[1][1].set_xticks([3, 4, 5, 6, 7, 8], [3, 4, 5, 6, 7, 8], zorder=110)
 
-    fig.suptitle(
-        f'''
-        {name_to_time(f)} s window, 
-        snr = {snr}, n >= {n}, 
-        distances = {min_dist}--{max_dist} km''', 
-        ha='center',
-        fontsize=14)
+    # fig.suptitle(
+    #     f'''
+    #     {name_to_time(f)} s window,
+    #     snr = {snr}, n >= {n},
+    #     distances = {min_dist}--{max_dist} km''',
+    #     ha='center',
+    #     fontsize=14)
     figure = plt.gcf()
     figure.set_size_inches(figure_sizes.a4landscape)
     figure.tight_layout()
     if save is True:
         plt.savefig(
-            f'''/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/data_subplots/no_lines_{time}_blankwindow_{blank}_snr{snr}_n{n}_dist{min_dist}_{max_dist}_grey.pdf''')
+            f'''/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/final/data_subplots/no_lines_{time}_blankwindow_{blank}_snr{snr}_n{n}_dist{min_dist}_{max_dist}_grey.pdf''')
     if show is True:
         plt.show()
     else:
@@ -476,8 +476,8 @@ def plot_data_subplots_line(x_list, y_list, types, f, tp_params, pgd_params, tc_
     fig, axs = plt.subplots(
         2, 2, figsize=figure_sizes.a4landscape, sharex=True)
     for i in range(0, 4):  # for each parameter
-        row = i // 2
-        col = i % 2
+        col = i // 2
+        row = i % 2
         axs[row][col].grid(True)
         axs[row][col].scatter(x_list[i] + np.random.uniform(-0.05, 0.05, len(x_list[i])),
                               y_list[i],
@@ -490,7 +490,7 @@ def plot_data_subplots_line(x_list, y_list, types, f, tp_params, pgd_params, tc_
         axs[row][col].set_ylabel(labels[types[i]], fontsize=12, labelpad=-2)
         axs[row][col].tick_params(axis='both', which='major', labelsize=12)
         axs[row][col].set_xticks([3, 4, 5, 6, 7, 8], [], zorder=110)
-        
+
         ax2 = axs[row][col].twiny()
 
         new_tick_locations = 2/3*(np.arange(13,24,1)-9.1)
@@ -509,8 +509,8 @@ def plot_data_subplots_line(x_list, y_list, types, f, tp_params, pgd_params, tc_
         if row ==1:
             axs[row][col].set_xlabel('Magnitude')
             ax2.set_xticklabels([])
-            
-            
+
+
         x_unique = np.arange(3, 8, 0.1)
 
         a = params[i][0][0]
@@ -558,7 +558,7 @@ def plot_data_subplots_line(x_list, y_list, types, f, tp_params, pgd_params, tc_
         else:
             axs[row][col].plot(x_unique, a * x_unique + (b - (5 * a)), color='#003f5c', zorder=102,
                                 linestyle='--', label=f'M{window_lengths[time]} + : {a:.2f}M-{abs((b-5*a)):.2f}')
-        
+
         axs[row][col].legend()
     import matplotlib.transforms as mtransforms
     trans = mtransforms.ScaledTranslation(-20 / 72, 7 / 72, fig.dpi_scale_trans)
@@ -571,31 +571,31 @@ def plot_data_subplots_line(x_list, y_list, types, f, tp_params, pgd_params, tc_
     axs[1][1].text(0.0, 1.0, 'd)', transform=axs[1][1].transAxes + trans,
                    fontsize='12', va='bottom')
 
-    axs[0][0].set_yticks([-1, 0, 1, 2], [1e-1, 1e+0, 1e+1, 1e+2])
+    axs[0][0].set_yticks([-1, 0, 1, 2], [fr'$10^{{{-1}}}$', 1, 10, fr'$10^{{{2}}}$'])
     axs[0][0].set_ylim([-1, 2])
-    axs[1][0].set_yticks([-1, 0, 1, 2], [1e-1, 1e+0, 1e+1, 1e+2])
-    axs[1][0].set_ylim([-1, 2])
-    axs[0][1].set_yticks(axs[0][1].get_yticks(), ['{0:.0e}'.format(
-        flt) for flt in 10**axs[0][1].get_yticks()])
-    axs[1][1].set_yticks(axs[1][1].get_yticks(), ['{0:.0e}'.format(
-        flt) for flt in 10**axs[1][1].get_yticks()])
-    axs[1][0].set_xticks([3, 4, 5, 6, 7, 8], [3, 4, 5, 6, 7, 8], zorder=110)
+
+    axs[0][1].set_yticks([-1, 0, 1, 2], [fr'$10^{{{-1}}}$', 1, 10, fr'$10^{{{2}}}$'])
+    axs[0][1].set_ylim([-1, 2])
+
+    axs[1][0].set_yticks(axs[1][0].get_yticks(), [fr'$10^{{{int(flt)}}}$' for flt in axs[1][0].get_yticks()])
+    axs[1][1].set_yticks(axs[1][1].get_yticks(), [fr'$10^{{{int(flt)}}}$' for flt in axs[1][1].get_yticks()])
+    axs[0][1].set_xticks([3, 4, 5, 6, 7, 8], [3, 4, 5, 6, 7, 8], zorder=110)
     axs[1][1].set_xticks([3, 4, 5, 6, 7, 8], [3, 4, 5, 6, 7, 8], zorder=110)
 
-    fig.suptitle(
-        f'''
-        {time} s window, 
-        snr = {snr}, n >= {n}, 
-        distances = {min_dist}--{max_dist} km''', 
-        fontsize=14, ha = 'center')
+    # fig.suptitle(
+    #     f'''
+    #     {time} s window,
+    #     snr = {snr}, n >= {n},
+    #     distances = {min_dist}--{max_dist} km''',
+    #     fontsize=14, ha = 'center')
     figure = plt.gcf()
     figure.set_size_inches(figure_sizes.a4landscape)
     figure.tight_layout()
     if save is True:
         if hyp is False:
-            plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/data_subplots/with_n/two_lines_{time}_blankwindow_{blank}_snr{snr}_n{n}_dist{min_dist}_{max_dist}.pdf')
+            plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/final/data_subplots/two_lines_{time}_blankwindow_{blank}_snr{snr}_n{n}_dist{min_dist}_{max_dist}.pdf')
         else:
-            plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/data_subplots_hypocentral/with_n/two_lines_{time}_blankwindow_{blank}_snr{snr}_n{n}_dist{min_dist}_{max_dist}.pdf')
+            plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/final/data_subplots_hypocentral/two_lines_{time}_blankwindow_{blank}_snr{snr}_n{n}_dist{min_dist}_{max_dist}.pdf')
     if show is True:
         plt.show()
     else:
@@ -614,15 +614,15 @@ def plot_data_subplots_line_m2(x_list, y_list, types, f, tp_params, pgd_params, 
     fig, axs = plt.subplots(
         2, 2, figsize=figure_sizes.a4landscape, sharex=True)
     for i in range(0, 4):  # for each parameter
-        row = i // 2
-        col = i % 2
+        col = i // 2
+        row = i % 2
         axs[row][col].grid(True)
         axs[row][col].scatter(x_list[i] + np.random.uniform(-0.05, 0.05, len(x_list[i])), y_list[i],
                               marker='x', color=colors[types[i]], s=10, alpha=0.5, zorder=80, rasterized=True)
         axs[row][col].set_ylabel(labels[types[i]], fontsize=12, labelpad=-2)
         axs[row][col].tick_params(axis='both', which='major', labelsize=12)
         axs[row][col].set_xticks([3, 4, 5, 6, 7, 8], [], zorder=110)
-        
+
         ax2 = axs[row][col].twiny()
 
         new_tick_locations = 2/3*(np.arange(13,24,1)-9.1)
@@ -641,8 +641,8 @@ def plot_data_subplots_line_m2(x_list, y_list, types, f, tp_params, pgd_params, 
         if row ==1:
             axs[row][col].set_xlabel('Magnitude')
             ax2.set_xticklabels([])
-            
-            
+
+
         for m in range(3, 7, 1):
             x_unique = np.arange(m, m + 2, 0.1)
 
@@ -694,8 +694,8 @@ def plot_data_subplots_line_m2(x_list, y_list, types, f, tp_params, pgd_params, 
 
     fig.suptitle(
         f'''
-        {time} s window, 
-        snr = {snr}, n >= {n}, 
+        {time} s window,
+        snr = {snr}, n >= {n},
         distances = {min_dist}--{max_dist} km''', fontsize=14, ha = 'center')
     figure = plt.gcf()
     figure.set_size_inches(figure_sizes.a4landscape)

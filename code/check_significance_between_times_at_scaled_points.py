@@ -8,7 +8,7 @@ from spearman_plotting_func import magnitudes
 from spearman_plotting_func import calc_tp_mag_lim, calc_pgd_mag_lim, calc_tc_mag_lim, calc_iv2_mag_lim, calc_opt
 
 import matplotlib
-matplotlib.rcParams.update({'font.size': 14})
+matplotlib.rcParams.update({'font.size': 18})
 
 
 hypo = True
@@ -58,6 +58,10 @@ iv2_df = pd.DataFrame(index=['03s_gradt', '03s_std',
                              '4s_gradt', '4s_std'],
                       columns=['one', 'two', 'three', 'ten'])
 
+titles = {'tp': 'predominant period',
+          'tc': 'average period',
+          'iv2': 'IV2',
+          'pgd': 'peak ground displacement'}
 
 def gradt_hist_subplots_panels_methods(params, scale_size='one'):
 
@@ -131,7 +135,7 @@ def gradt_hist_subplots_panels_windows(params):
 
 
         for j, time in enumerate(['03s', '05s', '1s', '4s']):
-            row, col = j % 2, j // 2
+            col, row = j % 2, j // 2
             for scale_size in ['one', 'two', 'three', 'ten']:
                 mu = p.loc[f'{time}_gradt'][scale_size]
                 sigma = p.loc[f'{time}_std'][scale_size]
@@ -152,12 +156,24 @@ def gradt_hist_subplots_panels_windows(params):
                 axs[row][col].vlines(mu - 2 * sigma, 0, pdf[index], color=c[scale_size], linestyle=':')
                 axs[row][col].vlines(mu + 2 * sigma, 0, pdf[100 - index], color=c[scale_size], linestyle=':')
             axs[row][col].legend()
-            axs[row][col].set_title(f'{time} window')
-            axs[row][col].set_xlim([xlim[param_name]['min'], xlim[param_name]['max']])
 
-        fig.suptitle(f'Distribution of gradient of {param_name}')
+            if time == '03s':
+                time_label = '0.3 s'
+            elif time == '05s':
+                time_label = '0.5 s'
+            elif time == '1s':
+                time_label = '1 s'
+            elif time == '4s':
+                time_label = '4 s'
+
+            axs[row][col].set_title(f'{time_label} window')
+            axs[row][col].set_xlim([xlim[param_name]['min'], xlim[param_name]['max']])
+            axs[row][col].set_ylabel('Counts')
+            axs[row][col].set_xlabel('Gradient')
+
+        fig.suptitle(f'Distribution of gradient of {titles[param_name]}')
         fig.tight_layout()
-        fig.savefig(f'{save_path}/figure_method_{param_name}_panels_windows.png')
+        fig.savefig(fr'{save_path}/figure_method_{param_name}_panels_windows.png')
     #plt.show()
 
 def gradt_hist_subplots_panels_comparable(params):
@@ -190,10 +206,17 @@ def gradt_hist_subplots_panels_comparable(params):
                 print(time)
                 mu = p.loc[f'{time}_gradt'][scale_size]
                 sigma = p.loc[f'{time}_std'][scale_size]
-
+                if time == '03s':
+                    time_label = '0.3 s'
+                elif time == '05s':
+                    time_label = '0.5 s'
+                elif time == '1s':
+                    time_label = '1 s'
+                elif time == '4s':
+                    time_label = '4 s'
                 x = np.linspace(mu - 3 * sigma, mu + 3 * sigma, 100)
                 pdf = stats.norm.pdf(x, mu, sigma)
-                axs[row][col].plot(x, pdf, label=time, color=c[time])
+                axs[row][col].plot(x, pdf, label=time_label, color=c[time])
                 axs[row][col].fill_between(x, pdf, color=c[time], alpha=0.5)
                 axs[row][col].vlines(mu, 0, max(pdf), color=c[time], linestyle='-')
 
@@ -209,11 +232,12 @@ def gradt_hist_subplots_panels_comparable(params):
             axs[row][col].legend()
             axs[row][col].set_title(f'seeing {scale_size} x earthquake')
             axs[row][col].set_xlim([xlim[param_name]['min'], xlim[param_name]['max']])
-
-        fig.suptitle(f'Distribution of gradient of {param_name}')
+            axs[row][col].set_ylabel('Counts')
+            axs[row][col].set_xlabel('Gradient')
+        fig.suptitle(fr'Distribution of gradient of {titles[param_name]}')
         fig.tight_layout()
         fig.savefig(f'{save_path}/figure_method_{param_name}_panels_comparable.png')
-    plt.show()
+    #plt.show()
 
 def fill_out_df(df_param, params, f, scale_size='one'):
     time = f[10:].split('_')[0]
@@ -344,5 +368,5 @@ print(pgd_df)
 # for scale_size in ['one', 'two', 'three', 'ten']:
 #     gradt_hist_subplots([tp_df, tc_df, iv2_df, pgd_df], scale_size=scale_size)
 
-#gradt_hist_subplots_panels_windows([tp_df, tc_df, iv2_df, pgd_df])
+gradt_hist_subplots_panels_windows([tp_df, tc_df, iv2_df, pgd_df])
 gradt_hist_subplots_panels_comparable([tp_df, tc_df, iv2_df, pgd_df])

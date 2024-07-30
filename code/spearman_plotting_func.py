@@ -496,6 +496,10 @@ def plot_spearman_subplots_all_on_one_no_n_shaded_percent_var(f,
     fig, axs = plt.subplots(4, 1, figsize=figure_sizes.a4square, sharex=True, height_ratios=[2, 1, 1, 1])
     axs[0].plot([], [], color='k', label='significant')
     axs[0].plot([], [], color='k', linestyle=':', label='insignificant')
+    axs[0].plot([], [], color=colors['tp'], label=r'$\tau_{P}^{\max}$')
+    axs[0].plot([], [], color=colors['tc'], label=r'$\tau_{C}$')
+    axs[0].plot([], [], color=colors['iv2'], label='IV2')
+    axs[0].plot([], [], color=colors['pgd'], label=r'$P_D$')
     # axs[0].fill_between([],[], [],color='k',alpha = 0.3, label = '1 s.d.')
     for p in params:
         magn = magnitudes[0:len(p[2])]
@@ -551,7 +555,7 @@ def plot_spearman_subplots_all_on_one_no_n_shaded_percent_var(f,
                     # print('i=0')
                     axs[i].plot(mag_mask, np.array(p[i])[(flip - 1):],
                                 color=colors[p[6]], linestyle=':', linewidth=2)
-                    axs[i].plot(mag_neg_mask, np.array(p[i])[:flip], color=colors[p[6]], linewidth=2, label=p[-1])
+                    axs[i].plot(mag_neg_mask, np.array(p[i])[:flip], color=colors[p[6]], linewidth=2)#, label=p[-1])
                 elif i == 1:
                     # print('i=1')
                     axs[0].fill_between(magn, np.array(p[0]) + np.array(p[1]), np.array(p[0]) - np.array(p[1]),
@@ -564,9 +568,9 @@ def plot_spearman_subplots_all_on_one_no_n_shaded_percent_var(f,
                     axs[i - 1].plot(mag_mask, np.array(p[i])[(flip - 1):],
                                     color=colors[p[6]], linestyle=':', linewidth=2)
                     axs[i - 1].plot(mag_neg_mask, np.array(p[i])[:flip],
-                                    color=colors[p[6]], label=p[-1], linewidth=2)
+                                    color=colors[p[6]], linewidth=2) #, label=p[-1]
 
-        axs[2].axhspan(0, 0.05, facecolor='grey', alpha=0.05)
+        axs[3].axhspan(0, 0.05, facecolor='grey', alpha=0.05)
     for ax in axs:
         ax.vlines(window_lengths[str(time)], 0, 1, transform=ax.get_xaxis_transform(),
                   color='grey', linewidth=1.5)
@@ -579,12 +583,12 @@ def plot_spearman_subplots_all_on_one_no_n_shaded_percent_var(f,
         ax.tick_params(axis='both', which='major', labelsize=14)
         # ax.tick_params(axis='both', which='minor', labelsize=8)
     axs[0].set_ylabel('Gradient', fontsize=14)
-    axs[1].set_ylabel('Variance explained', fontsize=14)
-    axs[2].set_ylabel('Spearman r', fontsize=14)
-    axs[3].set_ylabel('p-value of\n  spearman r', fontsize=14)
+    axs[1].set_ylabel('Variance \n explained', fontsize=14)
+    axs[2].set_ylabel("Spearman's r", fontsize=14)
+    axs[3].set_ylabel("p-value of\n  Spearman's r", fontsize=14)
     # axs[4].set_ylabel('n')
-    axs[0].set_title(f'{time} s Window, snr = {snr}, n >= {n}, distances = {min_dist}--{max_dist} km', fontsize=14)
-    axs[3].set_xlabel('Min mag', fontsize=14)
+    # axs[0].set_title(f'{time} s Window, snr = {snr}, n >= {n}, distances = {min_dist}--{max_dist} km', fontsize=14)
+    axs[3].set_xlabel('Minimum magnitude considered', fontsize=14)
     axs[3].set_xlim([3, 7])
     axs[0].grid(True)
     axs[1].grid(True)
@@ -614,18 +618,12 @@ def plot_spearman_subplots_all_on_one_no_n_shaded_percent_var(f,
     figure.tight_layout()
     if save is True:
         if log is True:
-            plt.savefig(f'''/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/gradt_spearman/
-                        shaded_combined_no_number_window_{time}_blankwindow_{blank}_snr{snr}_
-                        n{n}_dist{min_dist}_{max_dist}_log_var_durations.pdf''',
+            plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/final/gradt_spearman/shaded_combined_no_number_window_{time}_blankwindow_{blank}_snr{snr}_n{n}_dist{min_dist}_{max_dist}_log_var_durations.pdf',
                         dpi=400, bbox_inches='tight')
         elif g_r is True:
-            plt.savefig(f'''/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/gradt_spearman/
-                        shaded_combined_no_number_window_{time}_blankwindow_{blank}_snr{snr}_
-                        n{n}_dist{min_dist}_{max_dist}_gr_var_durations.pdf''',
+            plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/final/gradt_spearman/shaded_combined_no_number_window_{time}_blankwindow_{blank}_snr{snr}_n{n}_dist{min_dist}_{max_dist}_gr_var_durations.pdf',
                         dpi=400, bbox_inches='tight')
         else:
-            plt.savefig(f'''/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/gradt_spearman/
-                        shaded_combined_no_number_window_{time}_blankwindow_{blank}_snr{snr}_
-                        n{n}_dist{min_dist}_{max_dist}_var_durations.pdf''',
+            plt.savefig(f'/home/earthquakes1/homes/Rebecca/phd/seismo_det/figures/final/gradt_spearman/shaded_combined_no_number_window_{time}_blankwindow_{blank}_snr{snr}_n{n}_dist{min_dist}_{max_dist}_var_durations.pdf''',
                         dpi=400, bbox_inches='tight')
-    plt.show()
+    #plt.show()
