@@ -29,7 +29,7 @@ except: # catalog doesn't already exist
         print(len(new_cat))
         for event in new_cat:
             cat.append(event)
-    cat.write('/home/earthquakes1/homes/Rebecca/phd/data/'+wanted+'_catalog.xml', format="QUAKEML") 
+    cat.write('/home/earthquakes1/homes/Rebecca/phd/data/'+wanted+'_catalog.xml', format="QUAKEML")
 
 print('onto downloading data')
 download_data(cat, root+wanted+'/')
