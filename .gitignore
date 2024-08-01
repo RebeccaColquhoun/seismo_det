@@ -12,4 +12,4 @@ n_stations/
 other/
 seisbench/
 old_figures
-figures
+figures/*
