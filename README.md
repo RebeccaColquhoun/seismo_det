@@ -29,6 +29,10 @@ Determinism by looking at seismogram attributes
 # Structure
 
 Code is provided to download data, pick waveforms and calculate the 4 parameters of interest. It then extracts relevant parameters into DataFrames which can be used for further analysis, plotting etc.
+
+Warm colors show code files. Cool colors show data and results files which are made as the different code files are run.
+Darker colors are directories, whilst lighter colors are files.
+
 ```mermaid
 flowchart LR
     A[seismo_det] --> C[Data]
