@@ -13,3 +13,11 @@ other/
 seisbench/
 old_figures
 code/old_workings/
+code/__pycache__/data_plotting_func_min_dist.cpython-310.pyc
+code/__pycache__/earthquake.cpython-310.pyc
+code/__pycache__/figure_sizes.cpython-310.pyc
+code/__pycache__/func_data_download.cpython-310.pyc
+code/__pycache__/setup_paths.cpython-310.pyc
+code/__pycache__/spearman_plotting_func.cpython-310.pyc
+code/__pycache__/stationevent_to_json.cpython-310.pyc
+code/__pycache__/util.cpython-310.pyc
