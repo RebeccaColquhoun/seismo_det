@@ -5,45 +5,21 @@ import geopy
 import pandas as pd
 import numpy as np
 
-list_base_folders = ['/home/earthquakes1/homes/Rebecca/phd/data/2005_2018_global_m5/',
-                     '/home/earthquakes1/homes/Rebecca/phd/data/2018_2021_global_m5/',
-                     '/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/']
+import setup_paths as paths
 
-filenames = ['eq_object_03s_bandpass_01_19_snr_20_blank_0_new_snr5',
-             'eq_object_03s_bandpass_01_19_snr_20_blank_005_new_snr5',
-             'eq_object_03s_bandpass_01_19_snr_20_blank_01_new_snr5',
-             'eq_object_05s_bandpass_01_19_snr_20_blank_0_new_snr5',
-             'eq_object_05s_bandpass_01_19_snr_20_blank_005_new_snr5',
-             'eq_object_05s_bandpass_01_19_snr_20_blank_01_new_snr5',
-             'eq_object_05s_bandpass_01_19_snr_20_blank_025_new_snr5',
-             'eq_object_1s_bandpass_01_19_snr_20_blank_0_new_snr5',
-             'eq_object_1s_bandpass_01_19_snr_20_blank_005_new_snr5',
-             'eq_object_1s_bandpass_01_19_snr_20_blank_01_new_snr5',
-             'eq_object_1s_bandpass_01_19_snr_20_blank_025_new_snr5',
-             'eq_object_1s_bandpass_01_19_snr_20_blank_05_new_snr5',
-             'eq_object_4s_bandpass_01_19_snr_20_blank_0_new_snr5',
-             'eq_object_4s_bandpass_01_19_snr_20_blank_005_new_snr5',
-             'eq_object_4s_bandpass_01_19_snr_20_blank_01_new_snr5',
-             'eq_object_4s_bandpass_01_19_snr_20_blank_025_new_snr5',
-             'eq_object_4s_bandpass_01_19_snr_20_blank_05_new_snr5']
+root_path = paths.data_path
 
-filenames = ['eq_object_03s_bandpass_01_19_snr_20_blank_0_new_snr20',
-             'eq_object_03s_bandpass_01_19_snr_20_blank_005_new_snr20',
-             'eq_object_03s_bandpass_01_19_snr_20_blank_01_new_snr20',
-             'eq_object_05s_bandpass_01_19_snr_20_blank_0_new_snr20',
-             'eq_object_05s_bandpass_01_19_snr_20_blank_005_new_snr20',
-             'eq_object_05s_bandpass_01_19_snr_20_blank_01_new_snr20',
-             'eq_object_05s_bandpass_01_19_snr_20_blank_025_new_snr20',
-             'eq_object_1s_bandpass_01_19_snr_20_blank_0_new_snr20',
-             'eq_object_1s_bandpass_01_19_snr_20_blank_005_new_snr20',
-             'eq_object_1s_bandpass_01_19_snr_20_blank_01_new_snr20',
-             'eq_object_1s_bandpass_01_19_snr_20_blank_025_new_snr20',
-             'eq_object_1s_bandpass_01_19_snr_20_blank_05_new_snr20',
-             'eq_object_4s_bandpass_01_19_snr_20_blank_0_new_snr20',
-             'eq_object_4s_bandpass_01_19_snr_20_blank_005_new_snr20',
-             'eq_object_4s_bandpass_01_19_snr_20_blank_01_new_snr20',
-             'eq_object_4s_bandpass_01_19_snr_20_blank_025_new_snr20',
-             'eq_object_4s_bandpass_01_19_snr_20_blank_05_new_snr20']
+subfolders = paths.data_subfolders
+
+list_base_folders = []
+
+for folder in subfolders:
+    list_base_folders.append(os.path.join(root_path, folder) + '/')
+
+filenames = ['eq_object_03s_snr_20_blank_0_snr20',
+             'eq_object_05s_snr_20_blank_0_snr20',
+             'eq_object_1s_snr_20_blank_0_snr20',
+             'eq_object_4s_snr_20_blank_0_snr20']
 
 
 def get_hypocenter(eq):
@@ -175,25 +151,38 @@ for fn in filenames:
                                    'pgd_stations',
                                    'distance_dict'])
         print(len(folders))
-        for eq_no in range(0, len(folders)):
-            # start = time.perf_counter()
-            # print(base_folder, folders[eq_no], fn)
+        for eq_no in range(0, len(folders) - 1):
+            print(eq_no)
+            print(base_folder + folders[eq_no] + '/' + fn + '.pkl')
             if os.path.exists(base_folder + folders[eq_no] + '/' + fn + '.pkl'):
+                print('in')
                 with open(base_folder + folders[eq_no] + '/' + fn + '.pkl', 'rb') as picklefile:
                     eq = pickle.load(picklefile)
+                    print(eq)
                     df2 = make_dataframe(eq)
+                    print(df2)
                     df = pd.concat([df, df2])
         df = df.reset_index()
-        isExist = os.path.exists(base_folder + 'results_database_hypo/')
+        isExist = os.path.exists(base_folder + 'results_database/')
         if not isExist:
             # Create a new directory because it does not exist
-            os.makedirs(base_folder + 'results_database_hypo/')
-        df.to_pickle(base_folder + 'results_database_hypo/' + fn)
+            os.makedirs(base_folder + 'results_database/')
+        df.to_pickle(base_folder + 'results_database/' + fn + '.pkl')
 
-    df = pd.read_pickle('/home/earthquakes1/homes/Rebecca/phd/data/2005_2018_global_m5/results_database_hypo/' + fn)
-    df2 = pd.read_pickle('/home/earthquakes1/homes/Rebecca/phd/data/2018_2021_global_m5/results_database_hypo/' + fn)
-    df3 = pd.read_pickle('/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/results_database_hypo/' + fn)
-    df = pd.concat([df, df2])
-    df = pd.concat([df, df3])
-    df = df.reset_index()
-    df.to_pickle('/home/earthquakes1/homes/Rebecca/phd/data/results_database_hypo/' + fn)
+    # now combine all the dataframes for this window/calculation setup into one,
+    # even if the earthquake data is in several folders
+    df_list = []
+    for base_folder in list_base_folders:
+        df_list.append(pd.read_pickle(base_folder + 'results_database/' + fn + '.pkl'))
+        # df.to_pickle(paths.data_path + '/results_database_hypo/' + fn)
+    if len(df_list) > 1:
+        df = df_list[0]
+        for i in range(1, len(df_list)):
+            df = pd.concat([df, df_list[i]])
+        df = df.reset_index()
+    else:
+        df = df_list[0]
+
+    if not os.path.exists(paths.data_path + '/results_database/'):
+        os.makedirs(paths.data_path + '/results_database')
+    df.to_pickle(paths.data_path + '/results_database/' + fn + '.pkl')

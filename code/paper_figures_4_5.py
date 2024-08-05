@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -6,18 +7,16 @@ import setup_paths as paths
 
 matplotlib.rcParams.update({'font.size': 14})
 
-filenames = ['eq_object_03s_bandpass_01_19_snr_20_blank_0_snr20',
-             'eq_object_05s_bandpass_01_19_snr_20_blank_0_snr20',
-             'eq_object_1s_bandpass_01_19_snr_20_blank_0_snr20',
-             'eq_object_4s_bandpass_01_19_snr_20_blank_0_snr20']
+filenames = os.listdir(paths.base_path + '/paper_data/')
 
-n_stations = 1
 min_dist = 0
 max_dist = 200
+n_stations = 1
+
 
 for f in filenames:
     print(f)
-    df = pd.read_pickle(f'{paths.data_path}results_database/{f}.pkl')
+    df = pd.read_pickle(f'{paths.base_path}/paper_data/{f}')
 
     # can run for multiple (minimum) n_stations and min_dist, but for now just look at all data
     for n_stations in [1]:  # range(0,7):

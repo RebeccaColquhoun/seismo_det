@@ -1,17 +1,12 @@
 import util
 import os
-import stationevent_to_json as to_json
-import numpy as np
-from obspy import UTCDateTime
-import obspy
 from obspy.clients.fdsn.mass_downloader import CircularDomain, Restrictions, MassDownloader
 from obspy.clients.fdsn import Client
-import csv
-import pickle
 
 client = Client("IRIS")
 
-def download_data(cat, root = "/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/"):
+
+def download_data(cat, root="../data/2018_global_m5/"):
     cat_to_do = check_if_done(cat, root)
     for event in cat_to_do:
         origin_time = event.origins[0].time
@@ -21,7 +16,9 @@ def download_data(cat, root = "/home/earthquakes1/homes/Rebecca/phd/data/2019_gl
         # 70 and 90 degrees distance from the epicenter. This module also offers
         # rectangular and global domains. More complex domains can be defined by
         # inheriting from the Domain class.
-        domain = CircularDomain(latitude=event.origins[0].latitude, longitude=event.origins[0].longitude, minradius=0, maxradius=1)
+        domain = CircularDomain(latitude=event.origins[0].latitude,
+                                longitude=event.origins[0].longitude,
+                                minradius=0, maxradius=1)
 
         restrictions = Restrictions(
             # Get data from 5 minutes before the event to half an hour after the
@@ -53,16 +50,18 @@ def download_data(cat, root = "/home/earthquakes1/homes/Rebecca/phd/data/2019_gl
         # The data will be downloaded to the ``./waveforms/`` and ``./stations/``
         # folders with automatically chosen file names.
 
-        mdl.download(domain, restrictions, mseed_storage=root+eq_name+"/data/{station}/{network}.{station}.{location}.{channel}__{starttime}__{endtime}.mseed",
-                     stationxml_storage=root+eq_name+"/station_xml_files/")
+        mdl.download(domain, restrictions,
+                     mseed_storage=root + eq_name + "/data/{station}/{network}.{station}.{location}.{channel}__{starttime}__{endtime}.mseed",
+                     stationxml_storage=root + eq_name + "/station_xml_files/")
 
-def check_if_done(cat, root = "/home/earthquakes1/homes/Rebecca/phd/data/2019_global_m3/"):
+
+def check_if_done(cat, root="../data/2019_global_m3/"):
     last_event = 0
     for i in range(0, len(cat)):
         event = cat[i]
         fn = util.catEventToFileName(event)
-        if os.path.isdir(root+fn):
+        if os.path.isdir(root + fn):
             last_event = i
     cat_to_do = cat[last_event:]
     return cat_to_do
-        
+

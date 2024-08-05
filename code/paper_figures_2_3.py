@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import setup_paths as paths
 import data_plotting_func_min_dist as data_plotting
@@ -6,18 +7,16 @@ import matplotlib
 matplotlib.rcParams.update({'font.size': 20})
 
 
-filenames = ['eq_object_03s_bandpass_01_19_snr_20_blank_0_snr20',
-             'eq_object_05s_bandpass_01_19_snr_20_blank_0_snr20',
-             'eq_object_1s_bandpass_01_19_snr_20_blank_0_snr20',
-             'eq_object_4s_bandpass_01_19_snr_20_blank_0_snr20']
+# from spearman_plotting_func import *
+filenames = os.listdir(paths.base_path + '/paper_data/')
 
 min_dist = 0
 max_dist = 200
 
+
 for f in filenames:
     print(f)
-    df = pd.read_pickle(f'{paths.data_path}results_database/{f}.pkl')
-
+    df = pd.read_pickle(f'{paths.base_path}/paper_data/{f}')
     # can run for multiple (minimum) n_stations and min_dist, but for now just look at all data
 
     for min_dist in [0]:  # np.arange(0, 51, 10):
@@ -37,14 +36,16 @@ for f in filenames:
                                              f,
                                              n=n_stations,
                                              min_dist=min_dist, max_dist=max_dist,
-                                             save=True, show=False)
+                                             save=True, show=False,
+                                             path=paths.base_path + '/paper_figures/')
             data_plotting.plot_data_subplots_grey([x_tp, x_iv2, x_tc, x_pgd],
                                                   [y_tp, y_iv2, y_tc, y_pgd],
                                                   ['tp', 'iv2', 'tc', 'pgd'],
                                                   f,
                                                   n=n_stations,
                                                   min_dist=min_dist, max_dist=max_dist,
-                                                  save=True, show=False)
+                                                  save=True, show=False,
+                                                  path=paths.base_path + '/paper_figures/')
 
             # predominant period
             # define empty lists to store the results
@@ -147,4 +148,5 @@ for f in filenames:
                                                   pgd_params,
                                                   n=n_stations,
                                                   min_dist=min_dist, max_dist=max_dist,
-                                                  save=True, show=False, hyp=False)
+                                                  save=True, show=False, hyp=False,
+                                                  path=paths.base_path + '/paper_figures/')
