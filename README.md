@@ -29,7 +29,7 @@ Determinism by looking at seismogram attributes
 # Structure
 
 Code is provided to download data, pick waveforms and calculate the 4 parameters of interest. It then extracts relevant parameters into DataFrames which can be used for further analysis, plotting etc.
-
+```mermaid
 flowchart LR
     A[seismo_det] --> C[Data]
     C[Data] --> K[2018_2018_global_m5]
@@ -74,7 +74,7 @@ flowchart LR
     style T fill:#4ea4d9
     style B fill:#e39f46
     style A fill:#ffffff
-
+```
 
 
 # Use for your own data
