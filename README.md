@@ -19,12 +19,14 @@ Determinism by looking at seismogram attributes
 # Installation
 
 1. Clone this repository
-
+```
     git clone git@github.com:RebeccaColquhoun/seismo_det.git
-
-2. Open environment.yml and choose the name for your virtual environment
+```
+2. Open `environment.yml` and choose the name for your virtual environment
 3. Create a virtual environment with all required Python packages by running the following command in terminal
-    conda env create -f environment.yml
+```
+conda env create -f environment.yml
+```
 
 # Structure
 
@@ -86,10 +88,13 @@ flowchart LR
 2. In 1_run_data_download.py set values for min_mag, min_year and max_year. To download just one year of data set min_year and max_year to be the same.
 3. Run 1_run_data_download.py
 4. Run 2_picking.py
-5. Run 3_calculations.py
-    a. Calculations automatically run on 1 thread. If you want to use multithreading, set num_threads in setup_paths.py to a non-1 value.
-6. Run 4_make_database.py
-7. To make figures similar to those in the paper, run figures_2_3.py and figures_4_5.py.
+5. Open 3_calculations.py and set parameter options as desired.
+   ```parameters = [[calculation_window, blank_length, 'eq_object_03s_snr_20_blank_0'],]```
+6. Run 3_calculations.py: calculations automatically run on 1 thread. If you want to use multithreading, set num_threads in setup_paths.py to a non-1 value.
+7. Open 4_make_database.py and set filenames to those set in 3_calculations.py.
+   ```e.g. filenames = ['eq_object_03s_snr_20_blank_0_snr20']```
+8. Run 4_make_database.py
+9. To make figures similar to those in the paper, run figures_2_3.py and figures_4_5.py. Set filenames as in step 7.
 
 # Example data
-A small section of example data has been provided in the data/ subdirectory
+A small section of example data has been provided in the data/ subdirectory.

@@ -1,4 +1,4 @@
-name: rlc_publ
+name: ENVIRONMENT_NAME_HERE
 channels:
   - defaults
   - conda-forge
