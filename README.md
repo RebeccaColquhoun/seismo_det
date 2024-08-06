@@ -146,7 +146,13 @@ flowchart LR
     style U fill:#86ab90
 ```
 
+# Citing the model
 
+If you use this model please cite Colquhoun & Hawthorne (2024). This paper is submitted. If you would like to cite the model in the meantime, please use the Zenodo doi.
 
+# Issues
 
+If you have any questions about the code please email rebeccalcolquhoun"at"gmail.com. If there are any issues or bugs in the code please raise an issue.
+
+# References
 
