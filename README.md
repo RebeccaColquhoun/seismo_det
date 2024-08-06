@@ -1,19 +1,16 @@
-# seismo_det
-Determinism by looking at seismogram attributes
-
 # Overview
+Code to investigate earthquake determinism using early parameters of seismograms. 
 
 # Table of Contents
 
-- [seismo\_det](#seismo_det)
 - [Overview](#overview)
 - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
 - [Structure](#structure)
 - [Use for your own data](#use-for-your-own-data)
 - [Example data](#example-data)
-
-
+- [Citing](#citing)
+- [Issues](#issues)
 
 
 # Installation
@@ -146,13 +143,10 @@ flowchart LR
     style U fill:#86ab90
 ```
 
-# Citing the model
+# Citing
 
-If you use this model please cite Colquhoun & Hawthorne (2024). This paper is submitted. If you would like to cite the model in the meantime, please use the Zenodo doi.
+If you use this code please cite Colquhoun & Hawthorne (2024). This paper is submitted. If you would like to cite the model in the meantime, please use the Zenodo doi.
 
 # Issues
 
 If you have any questions about the code please email rebeccalcolquhoun"at"gmail.com. If there are any issues or bugs in the code please raise an issue.
-
-# References
-
