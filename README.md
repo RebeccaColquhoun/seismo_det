@@ -101,7 +101,7 @@ flowchart LR
 11. To make figures similar to those in the paper, run figures_2_3.py and figures_4_5.py. Set filenames as in step 7.
 
 # Example data
-A small section of example data has been provided in the data/ subdirectory. Any data you use must be structured similarly. 
+A small section of example data has been provided in the data/ subdirectory. Any data you use must be structured similarly. Color coding denotes when the file is made if the code is run as in [Use for your own data](#use-for-your-own-data). 
 ```mermaid
 flowchart LR
     AA[key] --> X[1_run_data_download]
