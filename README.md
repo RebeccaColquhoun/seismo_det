@@ -85,16 +85,68 @@ flowchart LR
 
 # Use for your own data
 1. Set your desired filepaths for storage in setup_paths.py. Otherwise default values will be used.
-2. In 1_run_data_download.py set values for min_mag, min_year and max_year. To download just one year of data set min_year and max_year to be the same.
+2. In 1_run_data_download.py set values for min_mag, min_year and max_year. To download just one year of data set min_year and max_year to be the same. This will structure the data file correctly. If using own data, it must be structured as in [Example data](#example-data)
 3. Run 1_run_data_download.py
 4. Run 2_picking.py
 5. Open 3_calculations.py and set parameter options as desired.
+   
    ```parameters = [[calculation_window, blank_length, 'eq_object_03s_snr_20_blank_0'],]```
-6. Run 3_calculations.py: calculations automatically run on 1 thread. If you want to use multithreading, set num_threads in setup_paths.py to a non-1 value.
-7. Open 4_make_database.py and set filenames to those set in 3_calculations.py.
+
+7. Run 3_calculations.py: calculations automatically run on 1 thread. If you want to use multithreading, set num_threads in setup_paths.py to a non-1 value.
+8. Open 4_make_database.py and set filenames to those set in 3_calculations.py.
+   
    ```e.g. filenames = ['eq_object_03s_snr_20_blank_0_snr20']```
-8. Run 4_make_database.py
-9. To make figures similar to those in the paper, run figures_2_3.py and figures_4_5.py. Set filenames as in step 7.
+
+10. Run 4_make_database.py
+11. To make figures similar to those in the paper, run figures_2_3.py and figures_4_5.py. Set filenames as in step 7.
 
 # Example data
-A small section of example data has been provided in the data/ subdirectory.
+A small section of example data has been provided in the data/ subdirectory. Any data you use must be structured similarly. 
+```mermaid
+flowchart LR
+    AA[key] --> X[1_run_data_download]
+    AA[key] --> Z[2_picking]
+    AA[key] --> Y[3_calculations]
+    AA[key] --> ZZ[4_make_database]
+    C[Data] --> K[2018_2018_global_m5]
+    K[2018_2018_global_m5] -->|e.g.|R[20180131_231321.a]
+    R[20180131_231321.a] --> S[data]
+    R[20180131_231321.a] --> T[station_xml_files]
+    R[20180131_231321.a] --> U[picks.pkl]
+    R[20180131_231321.a] -->|e.g.|V[eq_object...]
+    C[Data] --> L[results_database_combined]
+    C[Data] --> M[2018_2018_global_m5_catalog.xml]
+    S[data] --> |e.g.|D[EC.PUYO.HHE*.mseed]
+    S[data] --> |e.g.|E[EC.PUYO.HHN*.mseed]
+    S[data] --> |e.g.|F[EC.PUYO.HHZ*.mseed]
+    T[station_xml_files] --> |e.g.|G[EC.PUYO.xml]
+    K[2018_2018_global_m5] --> B[results_database]
+    B[results_database] --> |e.g.|H[results_eq_object...]
+    L[results_database_combined] --> |e.g.|I[results_eq_object...]
+
+    style M fill:#bfe0f5
+    style S fill:#bfe0f5
+    style D fill:#bfe0f5
+    style E fill:#bfe0f5
+    style F fill:#bfe0f5
+    style G fill:#bfe0f5
+    style T fill:#bfe0f5
+    style R fill:#bfe0f5
+    style K fill:#bfe0f5
+    style X fill:#bfe0f5
+    style AA fill:#ffffff
+    style L fill:#c3caf5
+    style B fill:#c3caf5
+    style H fill:#c3caf5
+    style I fill:#c3caf5
+    style ZZ fill:#c3caf5
+    style V fill:#bff5ce
+    style Y fill:#bff5ce
+    style Z fill:#86ab90
+    style U fill:#86ab90
+```
+
+
+
+
+
