@@ -167,13 +167,13 @@ for fn in filenames:
         if not isExist:
             # Create a new directory because it does not exist
             os.makedirs(base_folder + 'results_database/')
-        df.to_pickle(base_folder + 'results_database/' + fn + '.pkl')
+        df.to_pickle(base_folder + 'results_database/results_' + fn + '.pkl')
 
     # now combine all the dataframes for this window/calculation setup into one,
     # even if the earthquake data is in several folders
     df_list = []
     for base_folder in list_base_folders:
-        df_list.append(pd.read_pickle(base_folder + 'results_database/' + fn + '.pkl'))
+        df_list.append(pd.read_pickle(base_folder + 'results_database/results_' + fn + '.pkl'))
         # df.to_pickle(paths.data_path + '/results_database_hypo/' + fn)
     if len(df_list) > 1:
         df = df_list[0]
@@ -183,6 +183,6 @@ for fn in filenames:
     else:
         df = df_list[0]
 
-    if not os.path.exists(paths.data_path + '/results_database/'):
-        os.makedirs(paths.data_path + '/results_database')
-    df.to_pickle(paths.data_path + '/results_database/' + fn + '.pkl')
+    if not os.path.exists(paths.data_path + '/results_database_combined/'):
+        os.makedirs(paths.data_path + '/results_database_combined')
+    df.to_pickle(paths.data_path + '/results_database_combined/results_' + fn + '.pkl')
