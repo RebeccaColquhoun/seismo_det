@@ -82,23 +82,25 @@ flowchart LR
 
 # Use for your own data
 1. Set your desired filepaths for storage in setup_paths.py. Otherwise default values will be used.
-2. In 1_run_data_download.py set values for min_mag, min_year and max_year. To download just one year of data set min_year and max_year to be the same. This will structure the data file correctly. If using own data, it must be structured as in [Example data](#example-data)
-3. Run 1_run_data_download.py
-4. Run 2_picking.py
-5. Open 3_calculations.py and set parameter options as desired.
+2. In `1_run_data_download.py` set values for min_mag, min_year and max_year. To download just one year of data set min_year and max_year to be the same. This will structure the data file correctly. If using own data, it must be structured as in [Example data](#example-data)
+3. Run `1_run_data_download.py`
+4. Run `2_picking.py`
+5. Open `3_calculations.py` and set parameter options as desired.
    
    ```parameters = [[calculation_window, blank_length, 'eq_object_03s_snr_20_blank_0'],]```
 
-7. Run 3_calculations.py: calculations automatically run on 1 thread. If you want to use multithreading, set num_threads in setup_paths.py to a non-1 value.
-8. Open 4_make_database.py and set filenames to those set in 3_calculations.py.
+7. Run `3_calculations.py`: calculations automatically run on 1 thread. If you want to use multithreading, set num_threads in setup_paths.py to a non-1 value. If you wish to change additional parameter values, these can be passed to functions in `3_calculations.py` or edited in `earthquake.py`
+8. Open `4_make_database.py` and set filenames to those set in `3_calculations.py`.
    
    ```e.g. filenames = ['eq_object_03s_snr_20_blank_0_snr20']```
 
-10. Run 4_make_database.py
-11. To make figures similar to those in the paper, run figures_2_3.py and figures_4_5.py. Set filenames as in step 7.
+10. Run `4_make_database.py`
+11. To make figures similar to those in the paper, run `figures_2_3.py` and `figures_4_5.py`. Set filenames as in step 7.
 
 # Example data
-A small section of example data has been provided in the data/ subdirectory. Any data you use must be structured similarly. Color coding denotes when the file is made if the code is run as in [Use for your own data](#use-for-your-own-data). 
+A small section of example data has been provided in the data/ subdirectory. The output from running `1_run_data_download` and `2_picking` for a short window of 2018 is given. You can then run `3_calculations`, `4_make_database` and run any plotting scripts as desired. 
+
+Any data you use must be structured similarly to the data given. Color coding denotes when the file is made if the code is run as in [Use for your own data](#use-for-your-own-data). 
 ```mermaid
 flowchart LR
     AA[key] --> X[1_run_data_download]
