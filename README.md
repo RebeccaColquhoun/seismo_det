@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/416407308.svg)](https://zenodo.org/doi/10.5281/zenodo.13255671)
+
 # Overview
 Code to investigate earthquake determinism using early parameters of seismograms. 
 
