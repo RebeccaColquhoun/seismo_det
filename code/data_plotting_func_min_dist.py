@@ -317,10 +317,10 @@ def plot_data_subplots(x_list, y_list, types, f,
 
         ax2 = axs[row][col].twiny()
 
-        new_tick_locations = 2 / 3 * (np.arange(13, 24, 1) - 9.1)
+        new_tick_locations = 2 / 3 * (np.arange(14, 22, 1) - 9.1)
 
         def tick_function(X):
-            V = 10 ** (1.5 * X + 9.1)
+            V = 10 ** ((1.5 * X) + 9.1)
             V = np.log10(V)
             return [str(int(z)) for z in V]
 
@@ -406,11 +406,11 @@ def plot_data_subplots_grey(x_list, y_list, types, f,
 
         ax2 = axs[row][col].twiny()
 
-        new_tick_locations = 2 / 3 * (np.arange(13, 24, 1) - 9.1)
+        new_tick_locations = 2 / 3 * (np.arange(14, 22, 1) - 9.1)
         # print(new_tick_locations, len(new_tick_locations))
 
         def tick_function(X):
-            V = 10 ** (1.5 * X + 9.1)
+            V = 10 ** ((1.5 * X) + 9.1)
             V = np.log10(V)
             return [str(int(z)) for z in V]
         # print(tick_function(new_tick_locations), len(tick_function(new_tick_locations)))
@@ -502,10 +502,10 @@ def plot_data_subplots_line(x_list, y_list, types, f, tp_params, pgd_params, tc_
 
         ax2 = axs[row][col].twiny()
 
-        new_tick_locations = 2 / 3 * (np.arange(13, 24, 1) - 9.1)
+        new_tick_locations = 2 / 3 * (np.arange(14, 22, 1) - 9.1)
 
         def tick_function(X):
-            V = 10 ** (1.5 * X + 9.1)
+            V = 10 ** ((1.5 * X) + 9.1)
             V = np.log10(V)
             return [str(int(z)) for z in V]
 
