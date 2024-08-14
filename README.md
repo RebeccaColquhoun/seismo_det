@@ -149,8 +149,10 @@ flowchart LR
 
 # Citing
 
-If you use this code please cite Colquhoun & Hawthorne (2024). This paper is submitted. If you would like to cite the model in the meantime, please use the Zenodo doi.
+If you use this code please cite Colquhoun & Hawthorne (2024). This paper is submitted. If you would like to cite the code in the meantime, please use the Zenodo doi.
+
+Preprint available on ESS open archive: https://doi.org/10.22541/essoar.172363859.94193943/v1
 
 # Issues
 
-If you have any questions about the code please email rebeccalcolquhoun"at"gmail.com. If there are any issues or bugs in the code please raise an issue.
+If you have any questions about the code please email rebeccalcolquhoun"at"gmail.com. If there are any issues or bugs in the code, please raise an issue.
