@@ -12,8 +12,10 @@ matplotlib.rcParams.update({'font.size': 12})
 magnitudes = np.arange(3, 7.1, 0.1)
 colors = {'tp': '#7f58af', 'tc': '#e84d8a', 'iv2': '#64c5eb', 'pgd': '#7fb646'}
 
-window_lengths = {'0.3': 4, '0.5': 4.4, '1': 5.02, '4': 6.22}
-
+window_lengths = {'0.3': 4, '0.5': 4.4, '1': 5.02, '4': 6.22,
+                    '0.4': 4, '0.6': 4.4, '1.1': 5.02, '4.1': 6.22}
+#'0.2': 4, '0.4': 4.4, '0.9': 5.02, '3.9': 6.22}
+# '0.4': 4, '0.6': 4.4, '1.1': 5.02, '4.1': 6.22,
 labels = {'tp': r'$\tau_p^{\max}$, s',
           'tc': r'$\tau_c$, s',
           'pgd': r'$P_d$, m',
@@ -259,8 +261,14 @@ def name_to_snr(f):
 
 
 def name_to_blank(f):
-    split_at_underscore = f.split('_')
-    blank = split_at_underscore[9]
+    split_at_blank = f.split('blank')
+    if split_at_blank[1][1]=='n':
+        split_at_underscore = split_at_blank[1].split('_')
+        blank = split_at_underscore[1] + split_at_underscore[2]
+    else:
+        split_at_underscore = split_at_blank[1].split('_')
+        blank = split_at_underscore[1]
+    #blank = split_at_underscore[9]
     return blank
 
 

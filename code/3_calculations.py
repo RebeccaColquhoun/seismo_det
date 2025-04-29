@@ -13,7 +13,7 @@ parameters = [[0.3, 0, 'eq_object_03s_snr_20_blank_0'],
               [1, 0, 'eq_object_1s_snr_20_blank_0'],
               [4, 0, 'eq_object_4s_snr_20_blank_0']]
 
-root_path = paths.data_path
+root_path = '/home/earthquakes1/homes/Rebecca/phd/data/'#paths.data_path
 count = 0
 
 
@@ -66,7 +66,8 @@ def build_list():
     Returns:
         list_for_multi (list): A list of lists containing the earthquake name, event, folder, and parameters.
     """
-    wanted_list = paths.data_subfolders
+    #wanted_list = paths.data_subfolders
+    wanted_list = ['2005_2018_global_m5', '2018_2021_global_m5', '2019_global_m3']
     list_for_multi = []
     for wanted in wanted_list:
         eq_with_data, cat_with_data = find_with_data(wanted)
@@ -88,7 +89,7 @@ def single_eq_calculation(calculation_values):
     """
     eq_with_data_name, event, folder, params = calculation_values
     WINDOW_LEN, blank_window, fn = params
-    if os.path.isfile(folder + eq_with_data_name + '/' + fn + '_new_snr5.pkl') is False:
+    if os.path.isfile(folder + eq_with_data_name + '/' + fn + '_reviews_snr_20.pkl') is False:
         eq = earthquake.Earthquake(eq_with_data_name, event, root=folder)
         eq.eq_info()
         eq.load(root=folder)
@@ -100,10 +101,11 @@ def single_eq_calculation(calculation_values):
             eq.calc_pgd(window_length=WINDOW_LEN)
             eq.calc_tpmax(window_length=WINDOW_LEN,
                           blank_time=blank_window)
+            #print(eq.calculated_params['iv2'])
             if eq.data is not False:
                 del eq.data  # don't save seismographs data in pickle file
                 print(eq.event_stats['name'], fn)
-                with open(folder + eq_with_data_name + '/' + fn + '_snr20.pkl', 'wb') as picklefile:
+                with open(folder + eq_with_data_name + '/' + fn + '_reviews_snr_20.pkl', 'wb') as picklefile:
                     pickle.dump(eq, picklefile)
             else:
                 print('data problem')

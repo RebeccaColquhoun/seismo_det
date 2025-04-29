@@ -11,10 +11,10 @@ matplotlib.rcParams.update({'font.size': 20})
 
 magnitudes = np.arange(3, 7.1, 0.1)
 colors = {'tp': '#7f58af', 'tc': '#e84d8a', 'iv2': '#64c5eb', 'pgd': '#7fb646'}
-window_lengths = {'0.3': 4, '0.5': 4.4, '1': 5.02, '4': 6.22}
-half_lengths = {'0.3': 4.6, '0.5': 5.04, '1': 5.65, '4': 6.85}
-third_lengths = {'0.3': 4.95, '0.5': 5.4, '1': 6.0, '4': 7.2}
-tenth_lengths = {'0.3': 6, '0.5': 6.45, '1': 7.05, '4': 7.95}
+window_lengths = {'0.3': 4, '0.5': 4.4, '1': 5.02, '4': 6.22, '0.4': 4, '0.6': 4.4, '1.1': 5.02, '4.1': 6.22}
+half_lengths = {'0.3': 4.6, '0.5': 5.04, '1': 5.65, '4': 6.85, '0.4': 4.6, '0.6': 5.04, '1.1': 5.65, '4.1': 6.85}
+third_lengths = {'0.3': 4.95, '0.5': 5.4, '1': 6.0, '4': 7.2, '0.4': 4.95, '0.6': 5.4, '1.1': 6.0, '4.1': 7.2, }
+tenth_lengths = {'0.3': 6, '0.5': 6.45, '1': 7.05, '4': 7.95, '0.4': 6, '0.6': 6.45, '1.1': 7.05, '4.1': 7.95}
 
 
 def sort_tp_data(df, mag_lim=0, n=0, min_dist=0, max_dist=1000):
@@ -412,20 +412,30 @@ def name_to_snr(f):
         return snr[3:]
 
 
+# def name_to_blank(f):
+#     """
+#     Extracts the blank window length from the filename.
+
+#     Parameters:
+#     - f (str): The filename.
+
+#     Returns:
+#     - blank (str): The blank window length.
+#     """
+#     split_underscore = f.split('_')
+#     blank = split_underscore[9]
+#     return blank
+
 def name_to_blank(f):
-    """
-    Extracts the blank window length from the filename.
-
-    Parameters:
-    - f (str): The filename.
-
-    Returns:
-    - blank (str): The blank window length.
-    """
-    split_underscore = f.split('_')
-    blank = split_underscore[9]
+    split_at_blank = f.split('blank')
+    if split_at_blank[1][1]=='n':
+        split_at_underscore = split_at_blank[1].split('_')
+        blank = split_at_underscore[1] + split_at_underscore[2]
+    else:
+        split_at_underscore = split_at_blank[1].split('_')
+        blank = split_at_underscore[1]
+    #blank = split_at_underscore[9]
     return blank
-
 
 def plot_spearman_subplots_all_on_one_no_n_shaded_percent_var(f,
                                                               tp_params, pgd_params, iv2_params, tc_params,
@@ -456,6 +466,7 @@ def plot_spearman_subplots_all_on_one_no_n_shaded_percent_var(f,
     """
     params = [tp_params, pgd_params, iv2_params, tc_params]
     time = name_to_time(f)
+    print('time', time)
     snr = name_to_snr(f)
     blank = name_to_blank(f)
     fig, axs = plt.subplots(4, 1, figsize=figure_sizes.a4square, sharex=True, height_ratios=[2, 1, 1, 1])
@@ -562,7 +573,7 @@ def plot_spearman_subplots_all_on_one_no_n_shaded_percent_var(f,
     if path is None:
         path = paths.figure_path
     if save is True:
-        save_file = 'gradt_spearman_window_{time}_blankwindow_{blank}_snr{snr}_n{n}_dist{min_dist}_{max_dist}'
+        save_file = f'gradt_spearman_window_{time}_blankwindow_{blank}_snr{snr}_n{n}_dist{min_dist}_{max_dist}'
         if log is True:
             plt.savefig(f'{path}/{save_file}_log_var_durations.pdf',
                         dpi=400, bbox_inches='tight')

@@ -52,27 +52,31 @@ def do_calculation_preexisting(eq_with_data, root):
         for eq_no in range(0, len(eq_with_data)):
             print(params, eq_no)
             print('make object')
+            print(root + eq_with_data[eq_no] + '/' + fn + '.pkl')
             if os.path.exists(root + eq_with_data[eq_no] + '/' + fn + '.pkl'):
                 with open(root + eq_with_data[eq_no] + '/' + fn + '.pkl', 'rb') as picklefile:
+                    print('load object')
                     eq = pickle.load(picklefile)
                 eq.load(root=root)
                 eq.calc_iv2(window_length=WINDOW_LEN)
-                eq.calc_tc(window_length=WINDOW_LEN)
-                eq.calc_pgd(window_length=WINDOW_LEN)
-                eq.calc_tp(window_length=WINDOW_LEN,
-                           blank_window=blank_window)
-                print(eq.calculated_params['tau_c'])
+                # eq.calc_tc(window_length=WINDOW_LEN)
+                # eq.calc_pgd(window_length=WINDOW_LEN)
+                # eq.calc_tp(window_length=WINDOW_LEN,
+                #            blank_window=blank_window)
+                print(eq.calculated_params['iv2'])
                 if eq.data is not False:
                     del eq.data
                     print('save object')
 
                     with open(root + eq_with_data[eq_no] + '/' + fn + '.pkl', 'wb') as picklefile:
                         pickle.dump(eq, picklefile)
+            else:
+                print('no file')
 
 
 for folder in paths.data_subfolders:
     root = f'{paths.data_path}{folder}/'
     print(root)
-    cat = obspy.read_events('{paths.data_path}{folder}_catalog.xml')
+    cat = obspy.read_events(f'{paths.data_path}{folder}_catalog.xml')
     eq_with_data = find_with_data(root, cat)
     do_calculation_preexisting(eq_with_data, root)
